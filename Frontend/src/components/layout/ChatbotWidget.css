@@ -1,0 +1,767 @@
+/* =========================================
+   VETRI AI CHATBOT
+========================================= */
+
+.vetri-chatbot {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  font-family: inherit;
+}
+
+
+/* =========================================
+   FLOATING ROBOT
+========================================= */
+
+.vetri-robot-launcher {
+  position: relative;
+  width: 112px;
+  height: 120px;
+
+  border: none;
+  background: transparent;
+  padding: 0;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation: vetriRobotFloat 3.8s ease-in-out infinite;
+
+  outline: none;
+}
+
+.vetri-robot-image {
+  position: relative;
+  z-index: 3;
+
+  width: 100px;
+  height: 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  filter:
+    drop-shadow(0 0 8px rgba(79, 70, 229, 0.35))
+    drop-shadow(0 8px 18px rgba(37, 99, 235, 0.22));
+
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
+}
+
+.vetri-robot-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+/* Glow behind robot */
+
+.vetri-robot-glow {
+  position: absolute;
+
+  width: 82px;
+  height: 82px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(99, 102, 241, 0.28) 0%,
+      rgba(59, 130, 246, 0.14) 38%,
+      rgba(124, 58, 237, 0.05) 62%,
+      transparent 74%
+    );
+
+  filter: blur(8px);
+
+  z-index: 1;
+
+  animation: vetriGlowPulse 2.8s ease-in-out infinite;
+}
+
+
+/* Hover */
+
+.vetri-robot-launcher:hover .vetri-robot-image {
+  transform: scale(1.06);
+
+  filter:
+    drop-shadow(0 0 12px rgba(79, 70, 229, 0.5))
+    drop-shadow(0 10px 22px rgba(37, 99, 235, 0.28));
+}
+
+
+/* =========================================
+   AI LABEL
+========================================= */
+
+.vetri-ai-label {
+  position: absolute;
+
+  right: 88px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  white-space: nowrap;
+
+  padding: 9px 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #e6e9f2;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.10);
+
+  opacity: 0;
+
+  animation: vetriLabelAppear 0.6s ease forwards;
+
+  pointer-events: none;
+}
+
+.vetri-ai-label span {
+  font-size: 12px;
+  font-weight: 700;
+
+  color: #172033;
+}
+
+.vetri-ai-label::after {
+  content: "";
+
+  position: absolute;
+
+  right: -5px;
+  top: 50%;
+
+  width: 9px;
+  height: 9px;
+
+  background: #ffffff;
+
+  border-top: 1px solid #e6e9f2;
+  border-right: 1px solid #e6e9f2;
+
+  transform:
+    translateY(-50%)
+    rotate(45deg);
+}
+
+
+/* =========================================
+   CHAT WINDOW
+========================================= */
+
+.vetri-chat-window {
+  position: absolute;
+
+  right: 108px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 360px;
+  height: 500px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7f0;
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow:
+    0 25px 70px rgba(15, 23, 42, 0.16),
+    0 5px 20px rgba(15, 23, 42, 0.08);
+
+  animation: vetriChatAppear 0.28s ease-out;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.vetri-chat-header {
+  min-height: 72px;
+
+  padding: 12px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9ff 0%,
+      #ffffff 100%
+    );
+
+  border-bottom: 1px solid #edf0f7;
+}
+
+.vetri-chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.vetri-mini-robot {
+  width: 43px;
+  height: 43px;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #e0e7ff
+    );
+
+  box-shadow:
+    0 4px 12px rgba(79, 70, 229, 0.12);
+}
+
+.vetri-mini-robot img {
+  width: 36px;
+  height: 36px;
+
+  object-fit: contain;
+}
+
+.vetri-chat-title {
+  font-size: 14px;
+  font-weight: 750;
+
+  color: #111827;
+
+  margin-bottom: 3px;
+}
+
+.vetri-chat-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 10px;
+
+  color: #7b8498;
+}
+
+.vetri-chat-status span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow: 0 0 7px rgba(34, 197, 94, 0.45);
+}
+
+.vetri-close-btn {
+  width: 30px;
+  height: 30px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #8b93a5;
+
+  font-size: 23px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.vetri-close-btn:hover {
+  background: #f1f3f8;
+  color: #111827;
+}
+
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.vetri-chat-messages {
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding: 18px 15px;
+
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(99, 102, 241, 0.045),
+      transparent 30%
+    ),
+    #fbfcff;
+}
+
+.vetri-chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.vetri-chat-messages::-webkit-scrollbar-thumb {
+  background: #d8dce8;
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   WELCOME
+========================================= */
+
+.vetri-welcome {
+  text-align: center;
+
+  padding: 20px 10px;
+}
+
+.vetri-welcome-robot {
+  width: 72px;
+  height: 72px;
+
+  margin: 0 auto 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      #eef2ff,
+      #f8f9ff
+    );
+
+  box-shadow:
+    0 8px 25px rgba(79, 70, 229, 0.10);
+}
+
+.vetri-welcome-robot img {
+  width: 62px;
+  height: 62px;
+
+  object-fit: contain;
+}
+
+.vetri-welcome h3 {
+  margin: 0 0 7px;
+
+  font-size: 16px;
+
+  color: #171d2d;
+}
+
+.vetri-welcome p {
+  margin: 0 auto 18px;
+
+  max-width: 270px;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  color: #737c90;
+}
+
+.vetri-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vetri-suggestions button {
+  width: 100%;
+
+  padding: 9px 11px;
+
+  border: 1px solid #e6e9f2;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #343b4c;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition: all 0.2s ease;
+}
+
+.vetri-suggestions button:hover {
+  border-color: #c7d2fe;
+
+  background: #f5f7ff;
+
+  transform: translateX(2px);
+}
+
+
+/* =========================================
+   MESSAGE ROW
+========================================= */
+
+.vetri-message-row {
+  display: flex;
+
+  gap: 7px;
+
+  margin-bottom: 13px;
+}
+
+.vetri-message-row.user-message {
+  justify-content: flex-end;
+}
+
+.vetri-message-avatar {
+  width: 26px;
+  height: 26px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #eef2ff;
+}
+
+.vetri-message-avatar img {
+  width: 22px;
+  height: 22px;
+
+  object-fit: contain;
+}
+
+.vetri-message-bubble {
+  max-width: 76%;
+
+  padding: 9px 12px;
+
+  border-radius: 12px;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  color: #202638;
+
+  background: #ffffff;
+
+  border: 1px solid #e8ebf3;
+
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.user-message .vetri-message-bubble {
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  border: none;
+
+  border-bottom-right-radius: 4px;
+
+  box-shadow:
+    0 5px 14px rgba(37, 99, 235, 0.18);
+}
+
+.bot-message .vetri-message-bubble {
+  border-bottom-left-radius: 4px;
+}
+
+
+/* =========================================
+   INPUT
+========================================= */
+
+.vetri-chat-input-area {
+  padding: 11px 12px 10px;
+
+  background: #ffffff;
+
+  border-top: 1px solid #edf0f6;
+}
+
+.vetri-input-wrapper {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 4px;
+
+  border: 1px solid #dfe3ed;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.vetri-input-wrapper:focus-within {
+  border-color: #a5b4fc;
+
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.08);
+}
+
+.vetri-input-wrapper input {
+  flex: 1;
+
+  min-width: 0;
+
+  border: none;
+  outline: none;
+
+  padding: 8px 9px;
+
+  background: transparent;
+
+  color: #202638;
+
+  font-size: 12px;
+}
+
+.vetri-input-wrapper input::placeholder {
+  color: #a0a7b5;
+}
+
+.vetri-send-btn {
+  width: 31px;
+  height: 31px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vetri-send-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 12px rgba(37, 99, 235, 0.25);
+}
+
+.vetri-powered {
+  text-align: center;
+
+  margin-top: 6px;
+
+  font-size: 9px;
+
+  color: #a3a9b6;
+}
+
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes vetriRobotFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes vetriGlowPulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.12);
+
+    opacity: 0.9;
+  }
+}
+
+@keyframes vetriLabelAppear {
+  from {
+    opacity: 0;
+    transform:
+      translateY(-50%)
+      translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(-50%)
+      translateX(0);
+  }
+}
+
+@keyframes vetriChatAppear {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-50%)
+      translateX(15px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(-50%)
+      translateX(0)
+      scale(1);
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .vetri-chatbot {
+    right: 14px;
+  }
+
+  .vetri-robot-launcher {
+    width: 92px;
+    height: 105px;
+  }
+
+  .vetri-robot-image {
+    width: 85px;
+    height: 85px;
+  }
+
+  .vetri-robot-glow {
+    width: 70px;
+    height: 70px;
+  }
+
+  .vetri-ai-label {
+    display: none;
+  }
+
+  .vetri-chat-window {
+    position: fixed;
+
+    right: 14px;
+    left: 14px;
+
+    top: auto;
+    bottom: 125px;
+
+    transform: none;
+
+    width: auto;
+    height: min(500px, 70vh);
+
+    border-radius: 18px;
+
+    animation: vetriMobileChatAppear 0.28s ease-out;
+  }
+}
+
+@keyframes vetriMobileChatAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .vetri-robot-launcher,
+  .vetri-robot-glow,
+  .vetri-ai-label {
+    animation: none;
+  }
+}
