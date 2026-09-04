@@ -65,7 +65,7 @@ const STATUS_THEME = {
     to: "#334155",
     badgeBg: "#f1f5f9",
     badgeText: "#64748b",
-    image: null,
+    image: "/images/card4-purple.png",
   },
 };
 
@@ -87,10 +87,15 @@ function formatDate(dateStr) {
   });
 }
 
+function initials(name) {
+  if (!name) return "?";
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
 function ExamDiscovery() {
   useScrollReveal();
   const [searchParams] = useSearchParams();
-  const categoryParam = searchParams.get("category"); // e.g. "central", "state", "banking", "defence"
+  const categoryParam = searchParams.get("category");
 
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,8 +121,6 @@ function ExamDiscovery() {
       });
   }, []);
 
-  // Reset the manual authority/status pills whenever the nav category changes,
-  // so the two filtering mechanisms don't conflict.
   useEffect(() => {
     setSelectedAuthority("All");
     setSelectedStatus("All");
@@ -227,14 +230,10 @@ function ExamDiscovery() {
           }
         }
 
-        /* =====================================================
-           CARD GRID — image banner top, content below
-        ===================================================== */
-
         .ed-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 22px;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 16px;
         }
 
         .ed-card {
@@ -242,19 +241,19 @@ function ExamDiscovery() {
           overflow: hidden;
           background: #ffffff;
           border: 1px solid rgba(148, 163, 184, 0.16);
-          border-radius: 20px;
-          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+          border-radius: 16px;
+          box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
         .ed-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+          transform: translateY(-4px);
+          box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
         }
 
         .ed-card-banner {
           width: 100%;
-          height: 150px;
+          height: 110px;
           background-size: cover;
           background-position: top center;
           background-repeat: no-repeat;
@@ -265,46 +264,72 @@ function ExamDiscovery() {
         }
 
         .ed-card-body {
-          padding: 18px 20px 20px;
+          padding: 14px 16px 16px;
         }
 
         .ed-card-top {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
+          gap: 6px;
         }
 
         .ed-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
+          gap: 4px;
+          padding: 4px 10px;
           border-radius: 999px;
-          font-size: 11.5px;
+          font-size: 10.5px;
           font-weight: 800;
+          white-space: nowrap;
         }
 
         .ed-vacancy {
           display: flex;
           align-items: center;
-          gap: 4px;
-          font-size: 12px;
+          gap: 3px;
+          font-size: 11px;
           color: #64748b;
           font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .ed-body {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          margin-bottom: 10px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .ed-logo {
+          flex: 0 0 36px;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          font-weight: 800;
+          color: #fff;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
 
         .ed-title {
           margin: 0 0 2px;
-          font-size: 16px;
+          font-size: 13.5px;
           font-weight: 800;
           color: #0f172a;
           line-height: 1.25;
         }
 
         .ed-authority {
-          margin: 0 0 12px;
-          font-size: 12.5px;
+          margin: 0;
+          font-size: 11px;
           color: #94a3b8;
           font-weight: 600;
         }
@@ -312,10 +337,12 @@ function ExamDiscovery() {
         .ed-meta-row {
           display: flex;
           align-items: flex-start;
-          gap: 6px;
-          font-size: 12.5px;
+          gap: 5px;
+          font-size: 11px;
           color: #334155;
-          margin-bottom: 6px;
+          margin-bottom: 5px;
+          position: relative;
+          z-index: 1;
         }
 
         .ed-meta-row b {
@@ -326,17 +353,19 @@ function ExamDiscovery() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 6px;
           width: 100%;
-          margin-top: 16px;
-          padding: 12px;
+          margin-top: 12px;
+          padding: 9px;
           border: none;
-          border-radius: 12px;
+          border-radius: 9px;
           color: #fff;
-          font-size: 14px;
+          font-size: 12.5px;
           font-weight: 700;
           cursor: pointer;
           text-decoration: none;
+          position: relative;
+          z-index: 1;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -412,21 +441,31 @@ function ExamDiscovery() {
                         {theme.icon} {theme.label}
                       </span>
                       {exam.vacancy_count ? (
-                        <span className="ed-vacancy">👥 {exam.vacancy_count} vacancies</span>
+                        <span className="ed-vacancy">👥 {exam.vacancy_count}</span>
                       ) : null}
                     </div>
 
-                    <h3 className="ed-title">{exam.name}</h3>
-                    <p className="ed-authority">{exam.conducting_authority}</p>
+                    <div className="ed-body">
+                      <div
+                        className="ed-logo"
+                        style={{ background: `linear-gradient(135deg, ${theme.from}, ${theme.to})` }}
+                      >
+                        {initials(exam.conducting_authority || exam.name)}
+                      </div>
+                      <div>
+                        <h3 className="ed-title">{exam.name}</h3>
+                        <p className="ed-authority">{exam.conducting_authority}</p>
+                      </div>
+                    </div>
 
                     {exam.qualification_required && (
                       <div className="ed-meta-row">
-                        🎓 <span><b>Eligibility:</b> {exam.qualification_required}</span>
+                        🎓 <span>{exam.qualification_required}</span>
                       </div>
                     )}
 
                     <div className="ed-meta-row">
-                      📅 <span>Apply by <b>{formatDate(exam.application_end_date)}</b> · Exam on <b>{formatDate(exam.exam_date)}</b></span>
+                      📅 <span>Apply by <b>{formatDate(exam.application_end_date)}</b></span>
                     </div>
 
                     <Link
