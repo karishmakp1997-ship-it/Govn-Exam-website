@@ -1,30 +1,43 @@
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.contrib.auth.hashers import make_password
-from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import PendingSignup
-
+import requests as http_requests
 
 def send_otp_email(email, otp, username):
     subject = "Your Vetri AI Coach verification code"
-    message = (
-        f"Hi {username},\n\n"
-        f"Your OTP for signing up on Vetri AI Coach is: {otp}\n\n"
-        f"This code is valid for 5 minutes. If you didn't request this, please ignore this email.\n\n"
-        f"— Team Vetri AI Coach"
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color: #1e1b4b;">Hi {username},</h2>
+        <p>Your OTP for signing up on <strong>Vetri AI Coach</strong> is:</p>
+        <p style="font-size: 32px; font-weight: 800; letter-spacing: 4px; color: #7c3aed;">{otp}</p>
+        <p style="color: #64748b; font-size: 13px;">This code is valid for 5 minutes. If you didn't request this, please ignore this email.</p>
+        <p style="color: #94a3b8; font-size: 12px;">— Team Vetri AI Coach</p>
+    </div>
+    """
+
+    response = http_requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "from": "Vetri AI Coach <onboarding@resend.dev>",
+            "to": [email],
+            "subject": subject,
+            "html": html_body,
+        },
+        timeout=10,
     )
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [email],
-        fail_silently=False,
-    )
+
+    if response.status_code >= 400:
+        raise Exception(f"Resend API error: {response.status_code} {response.text}")
 
 
 class RequestSignupOTP(APIView):
