@@ -40,36 +40,41 @@ def send_otp_email(email, otp, username):
         raise Exception(f"Resend API error: {response.status_code} {response.text}")
 
 
+import traceback
+
 class RequestSignupOTP(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        username = request.data.get("username")
-        email = request.data.get("email", "")
-        mobile_number = request.data.get("mobile_number")
-        password = request.data.get("password")
-
-        if not username or not email or not mobile_number or not password:
-            return Response({"detail": "username, email, mobile_number, password required."}, status=400)
-        if User.objects.filter(username=username).exists():
-            return Response({"detail": "Username already taken."}, status=400)
-        if User.objects.filter(email=email).exists():
-            return Response({"detail": "Email already registered."}, status=400)
-
-        otp = PendingSignup.generate_otp()
-        pending, _ = PendingSignup.objects.update_or_create(
-            mobile_number=mobile_number,
-            defaults={"username": username, "email": email,
-                      "password_hash": make_password(password), "otp_code": otp, "attempts": 0},
-        )
-
         try:
-            send_otp_email(email, otp, username)
-        except Exception as e:
-            # Email failed to send (bad SMTP creds, network issue, etc.)
-            return Response({"detail": f"Could not send OTP email. Please try again. ({str(e)})"}, status=500)
+            username = request.data.get("username")
+            email = request.data.get("email", "")
+            mobile_number = request.data.get("mobile_number")
+            password = request.data.get("password")
 
-        return Response({"detail": "OTP sent to your email.", "mobile_number": mobile_number, "email": email})
+            if not username or not email or not mobile_number or not password:
+                return Response({"detail": "username, email, mobile_number, password required."}, status=400)
+            if User.objects.filter(username=username).exists():
+                return Response({"detail": "Username already taken."}, status=400)
+            if User.objects.filter(email=email).exists():
+                return Response({"detail": "Email already registered."}, status=400)
+
+            otp = PendingSignup.generate_otp()
+            pending, _ = PendingSignup.objects.update_or_create(
+                mobile_number=mobile_number,
+                defaults={"username": username, "email": email,
+                          "password_hash": make_password(password), "otp_code": otp, "attempts": 0},
+            )
+
+            send_otp_email(email, otp, username)
+
+            return Response({"detail": "OTP sent to your email.", "mobile_number": mobile_number, "email": email})
+
+        except Exception as e:
+            print("=== TRACEBACK_MARKER_START ===")
+            traceback.print_exc()
+            print("=== TRACEBACK_MARKER_END ===")
+            return Response({"detail": f"Could not send OTP email. Please try again. ({str(e)})"}, status=500)
 
 
 class VerifySignupOTP(APIView):
