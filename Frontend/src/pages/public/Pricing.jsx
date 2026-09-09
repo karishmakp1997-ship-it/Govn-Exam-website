@@ -25,6 +25,34 @@ const FAQS = [
   { q: "What payment methods are accepted?", a: "UPI, credit/debit cards, and net banking — powered by Razorpay, all major Indian banks supported." },
 ];
 
+// Mobile responsive rules for Pricing.
+// Same approach as the other pages: responsive-critical properties (grids,
+// padding, font sizes) live in classes since inline styles beat plain CSS specificity.
+const PRICING_RESPONSIVE_CSS = `
+.pr-section { padding: 48px 24px; }
+.pr-title { font-size: 30px; }
+.pr-plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+.pr-plan-card { padding: 28px; }
+.pr-plan-price { font-size: 30px; }
+.pr-money-back { display: flex; align-items: center; gap: 14px; }
+
+@media (max-width: 768px) {
+  .pr-section { padding: 28px 16px; }
+  .pr-title { font-size: 23px; }
+  .pr-plans-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 28px; }
+  .pr-plan-card { padding: 20px; }
+  .pr-plan-price { font-size: 26px; }
+  .pr-money-back { flex-wrap: wrap; text-align: center; justify-content: center; }
+}
+
+@media (max-width: 375px) {
+  .pr-section { padding: 20px 12px; }
+  .pr-title { font-size: 19px; }
+  .pr-plan-card { padding: 16px; }
+  .pr-plan-price { font-size: 22px; }
+}
+`;
+
 function Pricing() {
   const { isLoggedIn, requireAuth } = useAuth();
   const [subscription, setSubscription] = useState(null);
@@ -106,21 +134,22 @@ function Pricing() {
   const isPremium = subscription?.is_premium_active;
 
   return (
-    <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "48px 24px" }}>
+    <section className="pr-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{PRICING_RESPONSIVE_CSS}</style>
       <div style={{ maxWidth: "820px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "30px", fontWeight: 900, color: "var(--blue)", marginBottom: "8px" }}>Simple, Transparent Pricing</h2>
+          <h2 className="pr-title" style={{ fontWeight: 900, color: "var(--blue)", marginBottom: "8px" }}>Simple, Transparent Pricing</h2>
           <p style={{ fontSize: "14px", color: "var(--ink-mute)" }}>Start free. Upgrade when you're ready to go all in.</p>
         </div>
 
         {error && <p style={{ textAlign: "center", color: "#dc2626", marginBottom: "16px", fontSize: "13px" }}>{error}</p>}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "40px" }}>
+        <div className="pr-plans-grid">
           {/* Free plan */}
-          <div className="card" style={{ padding: "28px" }}>
+          <div className="card pr-plan-card">
             <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "4px" }}>Free</h3>
             <p className="meta" style={{ marginBottom: "16px" }}>Perfect to start exploring the platform.</p>
-            <p style={{ fontSize: "30px", fontWeight: 900, marginBottom: "20px" }}>₹0<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/forever</span></p>
+            <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹0<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/forever</span></p>
             {[
               "Exam notifications",
               "Basic eligibility check",
@@ -139,11 +168,11 @@ function Pricing() {
           </div>
 
           {/* Premium plan */}
-          <div className="card" style={{ padding: "28px", position: "relative", border: "2px solid var(--violet)" }}>
+          <div className="card pr-plan-card" style={{ position: "relative", border: "2px solid var(--violet)" }}>
             <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--violet)", color: "#fff", fontSize: "10px", fontWeight: 800, padding: "5px 12px", borderRadius: "999px" }}>MOST POPULAR</span>
             <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--violet)", marginBottom: "4px" }}>Premium</h3>
             <p className="meta" style={{ marginBottom: "16px" }}>Everything you need to crack the exam.</p>
-            <p style={{ fontSize: "30px", fontWeight: 900, marginBottom: "20px" }}>₹4,999<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>
+            <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹4,999<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>
             {[
               "Unlimited AI Coach",
               "Full mock test library",
@@ -189,7 +218,7 @@ function Pricing() {
         </div>
 
         {/* Money-back guarantee */}
-        <div className="card" style={{ display: "flex", alignItems: "center", gap: "14px", background: "#f0fdfa" }}>
+        <div className="card pr-money-back" style={{ background: "#f0fdfa" }}>
           <span style={{ fontSize: "22px" }}>🛡️</span>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: "13.5px", fontWeight: 700 }}>7-Day Money-Back Guarantee</p>
