@@ -31,24 +31,89 @@ function timeAgo(dateStr) {
   return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
 
-function ArticleThumb({ category, imageUrl, size = 90 }) {
+function ArticleThumb({ category, imageUrl, size = 90, className }) {
   const meta = getMeta(category);
   if (imageUrl) {
     return (
       <img
         src={imageUrl}
         alt=""
+        className={className}
         style={{ width: size, height: size, borderRadius: "10px", objectFit: "cover", flexShrink: 0 }}
         onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
       />
     );
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: "10px", background: meta.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, flexShrink: 0 }}>
+    <div className={className} style={{ width: size, height: size, borderRadius: "10px", background: meta.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, flexShrink: 0 }}>
       {meta.icon}
     </div>
   );
 }
+
+// Mobile responsive rules for CurrentAffairs.
+// Same approach as the other pages: responsive-critical properties (grids,
+// padding, font sizes) live in classes since inline styles beat plain CSS specificity.
+const CURRENT_AFFAIRS_RESPONSIVE_CSS = `
+.vintage-paper {
+  position: relative;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 60px 70px;
+  background-color: #f3e6bd;
+  border-style: solid;
+  border-width: 70px;
+  border-image-source: url('/images/paper.png');
+  border-image-slice: 25% fill;
+  border-image-width: 70px;
+  border-image-repeat: stretch;
+  box-shadow: 0 14px 44px rgba(0,0,0,0.3);
+}
+.ca-outer { padding: 24px; }
+.ca-masthead { padding: 10px 32px; font-size: 12px; }
+.ca-hero-title { font-size: 56px; }
+.ca-hero-sub { font-size: 13px; }
+.ca-nav { gap: 24px; padding: 14px 32px; }
+.ca-nav-item { font-size: 13px; }
+.ca-content { padding: 28px 32px; }
+.ca-headline-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px; margin-bottom: 32px; }
+.ca-headline-title { font-size: 30px; }
+.ca-headline-row { display: flex; gap: 20px; }
+.ca-headline-thumb { width: 220px !important; height: 220px !important; }
+.ca-editor-row { display: flex; align-items: center; gap: 16px; padding: 14px 18px; }
+.ca-world-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+.ca-bottom-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.ca-footer { padding: 24px 32px; }
+
+@media (max-width: 768px) {
+  .ca-outer { padding: 12px; }
+  .vintage-paper { padding: 24px 20px; border-width: 24px; }
+  .ca-masthead { padding: 8px 12px; font-size: 10.5px; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+  .ca-hero-title { font-size: 32px; }
+  .ca-hero-sub { font-size: 11.5px; }
+  .ca-nav { gap: 12px; padding: 10px 12px; }
+  .ca-nav-item { font-size: 12px; }
+  .ca-content { padding: 20px 12px; }
+  .ca-headline-grid { grid-template-columns: 1fr; gap: 24px; }
+  .ca-headline-title { font-size: 22px; }
+  .ca-headline-row { flex-direction: column; }
+  .ca-headline-thumb { width: 100% !important; height: 180px !important; }
+  .ca-editor-row { flex-wrap: wrap; padding: 12px; }
+  .ca-world-grid { grid-template-columns: 1fr; gap: 24px; }
+  .ca-bottom-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .ca-footer { padding: 18px 12px; }
+}
+
+@media (max-width: 375px) {
+  .vintage-paper { padding: 16px 12px; border-width: 14px; }
+  .ca-hero-title { font-size: 24px; letter-spacing: 0.5px; }
+  .ca-nav { gap: 8px; }
+  .ca-nav-item { font-size: 11px; }
+  .ca-headline-title { font-size: 18px; }
+  .ca-headline-thumb { height: 140px !important; }
+  .ca-bottom-grid { grid-template-columns: 1fr; }
+}
+`;
 
 function CurrentAffairs() {
   const [articles, setArticles] = useState([]);
@@ -89,43 +154,29 @@ function CurrentAffairs() {
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <div style={{ background: "#e2e8f0", minHeight: "100vh", padding: "24px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
-      <style>{`
-        .vintage-paper {
-          position: relative;
-          max-width: 1500px;
-          margin: 0 auto;
-          padding: 60px 70px;
-          background-color: #f3e6bd;
-          border-style: solid;
-          border-width: 70px;
-          border-image-source: url('/images/paper.png');
-          border-image-slice: 25% fill;
-          border-image-width: 70px;
-          border-image-repeat: stretch;
-          box-shadow: 0 14px 44px rgba(0,0,0,0.3);
-        }
-      `}</style>
+    <div className="ca-outer" style={{ background: "#e2e8f0", minHeight: "100vh", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+      <style>{CURRENT_AFFAIRS_RESPONSIVE_CSS}</style>
       <div className="vintage-paper">
       {/* Masthead */}
-      <div style={{ borderBottom: "2px solid #1a1a1a", padding: "10px 32px", display: "flex", justifyContent: "space-between", fontSize: "12px", fontFamily: "Arial, sans-serif" }}>
+      <div className="ca-masthead" style={{ borderBottom: "2px solid #1a1a1a", display: "flex", justifyContent: "space-between", fontFamily: "Arial, sans-serif" }}>
         <span>Stay Informed. Stay Ahead.</span>
         <span style={{ fontWeight: 700 }}>{today}</span>
         <span>Edition: Daily Digest ★</span>
       </div>
 
       <div style={{ textAlign: "center", padding: "24px 32px 16px", borderBottom: "1px solid #1a1a1a" }}>
-        <h1 style={{ fontSize: "56px", fontWeight: 900, letterSpacing: "2px", marginBottom: "10px" }}>CURRENT AFFAIRS</h1>
-        <p style={{ fontSize: "13px", fontFamily: "Arial, sans-serif", color: "#555" }}>
+        <h1 className="ca-hero-title" style={{ fontWeight: 900, letterSpacing: "2px", marginBottom: "10px" }}>CURRENT AFFAIRS</h1>
+        <p className="ca-hero-sub" style={{ fontFamily: "Arial, sans-serif", color: "#555" }}>
           Your Daily Update on National | International | Economy | Science | Environment | Defence | More
         </p>
       </div>
 
       {/* Category nav */}
-      <div style={{ display: "flex", justifyContent: "center", gap: "24px", padding: "14px 32px", borderBottom: "2px solid #1a1a1a", flexWrap: "wrap", fontFamily: "Arial, sans-serif" }}>
+      <div className="ca-nav" style={{ display: "flex", justifyContent: "center", borderBottom: "2px solid #1a1a1a", flexWrap: "wrap", fontFamily: "Arial, sans-serif" }}>
         <span
           onClick={() => setActiveCategory(null)}
-          style={{ fontSize: "13px", fontWeight: 700, cursor: "pointer", color: !activeCategory ? "#b91c1c" : "#1a1a1a" }}
+          className="ca-nav-item"
+          style={{ fontWeight: 700, cursor: "pointer", color: !activeCategory ? "#b91c1c" : "#1a1a1a" }}
         >
           Home
         </span>
@@ -133,22 +184,23 @@ function CurrentAffairs() {
           <span
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            style={{ fontSize: "13px", fontWeight: 600, cursor: "pointer", color: activeCategory === cat ? "#b91c1c" : "#1a1a1a" }}
+            className="ca-nav-item"
+            style={{ fontWeight: 600, cursor: "pointer", color: activeCategory === cat ? "#b91c1c" : "#1a1a1a" }}
           >
             {getMeta(cat).label}
           </span>
         ))}
       </div>
 
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "28px 32px", fontFamily: "Arial, sans-serif" }}>
+      <div className="ca-content" style={{ maxWidth: "1200px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
         {/* Headline + Top Stories */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "32px", marginBottom: "32px" }}>
+        <div className="ca-headline-grid">
           <div>
-            <h2 style={{ fontSize: "30px", fontFamily: "Georgia, serif", fontWeight: 800, lineHeight: 1.25, marginBottom: "16px" }}>
+            <h2 className="ca-headline-title" style={{ fontFamily: "Georgia, serif", fontWeight: 800, lineHeight: 1.25, marginBottom: "16px" }}>
               {headline.title}
             </h2>
-            <div style={{ display: "flex", gap: "20px" }}>
-              <ArticleThumb category={headline.category} imageUrl={headline.image_url} size={220} />
+            <div className="ca-headline-row">
+              <ArticleThumb category={headline.category} imageUrl={headline.image_url} size={220} className="ca-headline-thumb" />
               <div>
                 <p style={{ fontSize: "14px", lineHeight: 1.7, color: "#333", marginBottom: "12px" }}>
                   {headline.excerpt || headline.content?.slice(0, 220)}
@@ -159,7 +211,7 @@ function CurrentAffairs() {
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", background: "#fef2f2", borderRadius: "10px", padding: "14px 18px", marginTop: "20px" }}>
+            <div className="ca-editor-row" style={{ background: "#fef2f2", borderRadius: "10px", marginTop: "20px" }}>
               <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#b91c1c", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>✒️</div>
               <p style={{ fontSize: "13px", flex: 1 }}><strong>Editor's Take:</strong> {getMeta(headline.category).label} continues to shape today's biggest headlines.</p>
               <button style={{ background: "#fff", border: "1px solid #b91c1c", color: "#b91c1c", borderRadius: "8px", padding: "8px 14px", fontSize: "12px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -191,7 +243,7 @@ function CurrentAffairs() {
         <hr style={{ border: "none", borderTop: "2px solid #1a1a1a", marginBottom: "28px" }} />
 
         {/* Around the world / Economy / Quick facts */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", marginBottom: "32px" }}>
+        <div className="ca-world-grid">
           {[
             { title: "AROUND THE WORLD", article: worldArticle, color: "#2563eb" },
             { title: "ECONOMY", article: economyArticle, color: "#0891b2" },
@@ -230,7 +282,7 @@ function CurrentAffairs() {
         <hr style={{ border: "none", borderTop: "1px solid #ddd", marginBottom: "28px" }} />
 
         {/* Bottom category grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+        <div className="ca-bottom-grid">
           {bottomArticles.map((a) => (
             <div key={a.id}>
               <p style={{ fontSize: "11px", fontWeight: 800, color: getMeta(a.category).color, marginBottom: "8px" }}>{getMeta(a.category).label.toUpperCase()}</p>
@@ -246,7 +298,7 @@ function CurrentAffairs() {
       </div>
 
       {/* Footer */}
-      <div style={{ borderTop: "2px solid #1a1a1a", marginTop: "32px", padding: "24px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+      <div className="ca-footer" style={{ borderTop: "2px solid #1a1a1a", marginTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <p style={{ fontSize: "13px", fontStyle: "italic", color: "#555", maxWidth: "420px" }}>
           "The more you read, the more things you will know. The more that you learn, the more places you'll go." — Dr. Seuss
         </p>

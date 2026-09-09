@@ -30,6 +30,65 @@ const PLACEHOLDER_STUDY_PLAN = [
   { week: "Week 3-4", subject: "History", percent: 40, color: "#16a34a" },
 ];
 
+// Mobile responsive rules for AICoach.
+// Inline styles beat plain CSS specificity, so the responsive-critical
+// properties (grid columns, padding, bubble width, etc.) live here as
+// classes instead of inline, and everything else stays inline as before.
+const AI_COACH_RESPONSIVE_CSS = `
+.aicoach-page { padding: 20px; }
+.aicoach-tabs-wrap { margin: 0 auto 16px; }
+.aicoach-tab-btn { padding: 9px 20px; font-size: 13.5px; }
+.aicoach-header { padding: 18px 24px; }
+.aicoach-header-title { font-size: 18px; }
+.aicoach-header-sub { font-size: 12.5px; }
+.aicoach-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+.aicoach-chat-panel { height: 70vh; }
+.aicoach-welcome-banner { padding: 24px; gap: 18px; }
+.aicoach-welcome-title { font-size: 18px; }
+.aicoach-welcome-sub { font-size: 13.5px; }
+.aicoach-welcome-emoji { font-size: 40px; }
+.aicoach-quick-prompts { padding: 16px 24px; }
+.aicoach-quick-prompt-btn { padding: 8px 14px; font-size: 12.5px; }
+.aicoach-messages { padding: 8px 24px; gap: 16px; }
+.aicoach-bubble { max-width: 70%; padding: 12px 16px; font-size: 14px; }
+.aicoach-input-form { padding: 16px 24px; gap: 10px; }
+.aicoach-input-field { padding: 12px 16px; font-size: 14px; }
+.aicoach-send-btn { width: 44px; height: 44px; font-size: 16px; }
+.aicoach-sidebar { gap: 16px; }
+
+@media (max-width: 768px) {
+  .aicoach-page { padding: 14px; }
+  .aicoach-header { padding: 14px 16px; flex-wrap: wrap; }
+  .aicoach-header-title { font-size: 16px; }
+  .aicoach-grid { grid-template-columns: 1fr; }
+  .aicoach-chat-panel { height: 60vh; }
+  .aicoach-welcome-banner { padding: 16px; gap: 12px; }
+  .aicoach-welcome-title { font-size: 15.5px; }
+  .aicoach-welcome-sub { font-size: 12.5px; }
+  .aicoach-welcome-emoji { display: none; }
+  .aicoach-quick-prompts { padding: 12px 16px; }
+  .aicoach-messages { padding: 8px 16px; }
+  .aicoach-bubble { max-width: 85%; }
+  .aicoach-input-form { padding: 12px 16px; }
+}
+
+@media (max-width: 375px) {
+  .aicoach-page { padding: 10px; }
+  .aicoach-tab-btn { padding: 8px 14px; font-size: 12px; }
+  .aicoach-header { padding: 12px; }
+  .aicoach-header-title { font-size: 14.5px; }
+  .aicoach-header-sub { font-size: 11px; }
+  .aicoach-chat-panel { height: 65vh; }
+  .aicoach-welcome-banner { padding: 12px; }
+  .aicoach-welcome-title { font-size: 14px; }
+  .aicoach-welcome-sub { font-size: 11.5px; }
+  .aicoach-quick-prompt-btn { padding: 6px 10px; font-size: 11.5px; }
+  .aicoach-bubble { max-width: 90%; font-size: 13px; padding: 10px 12px; }
+  .aicoach-input-field { padding: 10px 12px; font-size: 13px; }
+  .aicoach-send-btn { width: 38px; height: 38px; font-size: 14px; }
+}
+`;
+
 function RobotAvatar({ size = 44 }) {
   return (
     <div
@@ -106,13 +165,16 @@ function AICoach() {
   };
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: "20px" }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto 16px" }}>
+    <div className="aicoach-page" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{AI_COACH_RESPONSIVE_CSS}</style>
+
+      <div className="aicoach-tabs-wrap" style={{ maxWidth: "1200px" }}>
         <div style={{ display: "inline-flex", gap: "6px", background: "#fff", borderRadius: "12px", padding: "5px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
           <button
             onClick={() => setActiveTab("chat")}
+            className="aicoach-tab-btn"
             style={{
-              padding: "9px 20px", borderRadius: "9px", border: "none", fontSize: "13.5px", fontWeight: 700, cursor: "pointer",
+              borderRadius: "9px", border: "none", fontWeight: 700, cursor: "pointer",
               background: activeTab === "chat" ? "linear-gradient(135deg, var(--blue), var(--violet))" : "transparent",
               color: activeTab === "chat" ? "#fff" : "var(--ink-mute)",
             }}
@@ -121,8 +183,9 @@ function AICoach() {
           </button>
           <button
             onClick={() => setActiveTab("interview")}
+            className="aicoach-tab-btn"
             style={{
-              padding: "9px 20px", borderRadius: "9px", border: "none", fontSize: "13.5px", fontWeight: 700, cursor: "pointer",
+              borderRadius: "9px", border: "none", fontWeight: 700, cursor: "pointer",
               background: activeTab === "interview" ? "linear-gradient(135deg, var(--blue), var(--violet))" : "transparent",
               color: activeTab === "interview" ? "#fff" : "var(--ink-mute)",
             }}
@@ -137,39 +200,43 @@ function AICoach() {
       ) : (
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           {/* Header */}
-          <div style={{ background: "linear-gradient(135deg, var(--blue), var(--violet))", borderRadius: "16px", padding: "18px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+          <div
+            className="aicoach-header"
+            style={{ background: "linear-gradient(135deg, var(--blue), var(--violet))", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
               <RobotAvatar size={44} />
               <div>
-                <h2 style={{ color: "#fff", fontSize: "18px", fontWeight: 800 }}>Vetri AI Coach</h2>
-                <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "12.5px" }}>Always here to help</p>
+                <h2 className="aicoach-header-title" style={{ color: "#fff", fontWeight: 800 }}>Vetri AI Coach</h2>
+                <p className="aicoach-header-sub" style={{ color: "rgba(255,255,255,0.85)" }}>Always here to help</p>
               </div>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "16px", alignItems: "start" }}>
+          <div className="aicoach-grid" style={{ alignItems: "start" }}>
             {/* Chat panel */}
-            <div style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 4px 14px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", height: "70vh" }}>
+            <div className="aicoach-chat-panel" style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 4px 14px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column" }}>
               {/* Welcome banner */}
-              <div style={{ background: "linear-gradient(135deg, #eff6ff, #f5f3ff)", borderRadius: "16px 16px 0 0", padding: "24px", display: "flex", alignItems: "center", gap: "18px" }}>
+              <div className="aicoach-welcome-banner" style={{ background: "linear-gradient(135deg, #eff6ff, #f5f3ff)", borderRadius: "16px 16px 0 0", display: "flex", alignItems: "center" }}>
                 <RobotAvatar size={56} />
                 <div>
-                  <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--ink)" }}>Hi! I'm your Vetri AI Coach.</h3>
-                  <p style={{ fontSize: "13.5px", color: "var(--ink-mute)" }}>Ask me about exams, eligibility, deadlines, or your study plan.</p>
+                  <h3 className="aicoach-welcome-title" style={{ fontWeight: 800, color: "var(--ink)" }}>Hi! I'm your Vetri AI Coach.</h3>
+                  <p className="aicoach-welcome-sub" style={{ color: "var(--ink-mute)" }}>Ask me about exams, eligibility, deadlines, or your study plan.</p>
                 </div>
-                <span style={{ marginLeft: "auto", fontSize: "40px" }}>📚</span>
+                <span className="aicoach-welcome-emoji" style={{ marginLeft: "auto" }}>📚</span>
               </div>
 
               {/* Quick prompts */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", padding: "16px 24px" }}>
+              <div className="aicoach-quick-prompts" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                 {QUICK_PROMPTS.map((p) => (
                   <button
                     key={p.text}
                     onClick={() => sendMessage(p.text)}
+                    className="aicoach-quick-prompt-btn"
                     style={{
                       display: "flex", alignItems: "center", gap: "6px",
                       background: "#fff", border: "1px solid var(--line)", borderRadius: "999px",
-                      padding: "8px 14px", fontSize: "12.5px", fontWeight: 600, cursor: "pointer",
+                      fontWeight: 600, cursor: "pointer",
                     }}
                   >
                     <span>{p.icon}</span> {p.text}
@@ -178,16 +245,17 @@ function AICoach() {
               </div>
 
               {/* Messages */}
-              <div ref={scrollRef} style={{ flex: 1, overflowY: "auto", padding: "8px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div ref={scrollRef} className="aicoach-messages" style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
                 {messages.map((m, idx) => (
                   <div key={idx} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start", gap: "10px" }}>
                     {m.role === "assistant" && <RobotAvatar size={32} />}
                     <div
+                      className="aicoach-bubble"
                       style={{
-                        maxWidth: "70%", padding: "12px 16px", borderRadius: "14px",
+                        borderRadius: "14px",
                         background: m.role === "user" ? "var(--violet)" : "#f1f5f9",
                         color: m.role === "user" ? "#fff" : "var(--ink)",
-                        fontSize: "14px", lineHeight: 1.5,
+                        lineHeight: 1.5,
                       }}
                     >
                       {m.content}
@@ -205,21 +273,23 @@ function AICoach() {
               </div>
 
               {/* Input */}
-              <form onSubmit={handleSubmit} style={{ display: "flex", gap: "10px", padding: "16px 24px", borderTop: "1px solid var(--line)" }}>
+              <form onSubmit={handleSubmit} className="aicoach-input-form" style={{ display: "flex", borderTop: "1px solid var(--line)" }}>
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Message Vetri AI Coach..."
-                  style={{ flex: 1, padding: "12px 16px", borderRadius: "999px", border: "1px solid var(--line)", fontSize: "14px" }}
+                  className="aicoach-input-field"
+                  style={{ flex: 1, borderRadius: "999px", border: "1px solid var(--line)" }}
                 />
                 <button
                   type="submit"
                   disabled={sending || !input.trim()}
+                  className="aicoach-send-btn"
                   style={{
-                    width: "44px", height: "44px", borderRadius: "50%",
+                    borderRadius: "50%",
                     background: "var(--violet)", color: "#fff", border: "none",
-                    fontSize: "16px", cursor: "pointer", flexShrink: 0,
+                    cursor: "pointer", flexShrink: 0,
                   }}
                 >
                   ➤
@@ -228,7 +298,7 @@ function AICoach() {
             </div>
 
             {/* Sidebar */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="aicoach-sidebar" style={{ display: "flex", flexDirection: "column" }}>
               <div className="card">
                 <h4 style={{ fontSize: "14px", fontWeight: 700, marginBottom: "12px", color: "var(--violet)" }}>📅 Today's Plan</h4>
                 {PLACEHOLDER_TODAY_PLAN.map((item) => (

@@ -24,6 +24,38 @@ function getStatus(releasedAt) {
   return { label: "Not Yet Released", bg: "#f1f5f9", color: "#64748b", icon: "⏱" };
 }
 
+// Mobile responsive rules for AdmitCard.
+// Same approach as the other pages: responsive-critical properties (grids,
+// padding, font sizes) live in classes since inline styles beat plain CSS specificity.
+const ADMIT_CARD_RESPONSIVE_CSS = `
+.adm-section { padding: 32px; }
+.adm-header-icon { width: 52px; height: 52px; font-size: 24px; }
+.adm-title { font-size: 26px; }
+.adm-master-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.adm-detail-card { padding: 28px; }
+.adm-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.adm-detail-title { font-size: 24px; }
+.adm-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+@media (max-width: 768px) {
+  .adm-section { padding: 16px; }
+  .adm-header-icon { width: 42px; height: 42px; font-size: 19px; }
+  .adm-title { font-size: 21px; }
+  .adm-master-grid { grid-template-columns: 1fr; }
+  .adm-detail-card { padding: 18px; }
+  .adm-detail-title { font-size: 19px; }
+  .adm-info-grid { grid-template-columns: 1fr; gap: 18px; }
+}
+
+@media (max-width: 375px) {
+  .adm-section { padding: 12px; }
+  .adm-header-icon { width: 38px; height: 38px; font-size: 17px; }
+  .adm-title { font-size: 18px; }
+  .adm-detail-card { padding: 14px; }
+  .adm-detail-title { font-size: 17px; }
+}
+`;
+
 function AdmitCard() {
   const [admitCards, setAdmitCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,12 +86,13 @@ function AdmitCard() {
   const docsList = selected?.required_documents ? selected.required_documents.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
   return (
-    <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "32px" }}>
+    <section className="adm-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{ADMIT_CARD_RESPONSIVE_CSS}</style>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px" }}>
-          <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>🪪</div>
+          <div className="adm-header-icon" style={{ borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center" }}>🪪</div>
           <div>
-            <h2 style={{ fontSize: "26px", fontWeight: 900 }}>Admit Cards</h2>
+            <h2 className="adm-title" style={{ fontWeight: 900 }}>Admit Cards</h2>
             <p style={{ fontSize: "13.5px", color: "var(--ink-mute)" }}>Download and review your exam admit cards.</p>
           </div>
         </div>
@@ -67,7 +100,7 @@ function AdmitCard() {
         {admitCards.length === 0 ? (
           <p className="section-head center">No admit cards have been released yet.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "20px", alignItems: "start" }}>
+          <div className="adm-master-grid">
             {/* Left list */}
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {admitCards.map((ac) => {
@@ -107,15 +140,15 @@ function AdmitCard() {
 
             {/* Right detail */}
             {selected && (
-              <div style={{ background: "#fff", borderRadius: "18px", padding: "28px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+              <div className="adm-detail-card" style={{ background: "#fff", borderRadius: "18px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
+                <div className="adm-detail-header" style={{ marginBottom: "24px" }}>
                   <div>
-                    <h2 style={{ fontSize: "24px", fontWeight: 900, marginBottom: "6px" }}>{selected.exam_name}</h2>
+                    <h2 className="adm-detail-title" style={{ fontWeight: 900, marginBottom: "6px" }}>{selected.exam_name}</h2>
                     <p style={{ fontSize: "13px", color: "var(--ink-mute)" }}>{selected.exam_authority}</p>
                   </div>
                   {selected.released_at && selected.admit_card_file ? (
                     <a href={selected.admit_card_file} target="_blank" rel="noopener noreferrer" download>
-                      <button style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px 20px", fontWeight: 700, fontSize: "13.5px", cursor: "pointer" }}>
+                      <button style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px 20px", fontWeight: 700, fontSize: "13.5px", cursor: "pointer", whiteSpace: "nowrap" }}>
                         ⬇ Download Admit Card
                       </button>
                     </a>
@@ -126,7 +159,7 @@ function AdmitCard() {
                   )}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+                <div className="adm-info-grid">
                   <div>
                     <h4 style={{ fontSize: "15px", fontWeight: 800, marginBottom: "16px" }}>📅 Exam Schedule</h4>
                     {selected.reporting_time && (

@@ -53,6 +53,64 @@ const SCORE_LABELS = [
   { key: "confidence_score", label: "Confidence", icon: "⚡", color: "#d97706" },
 ];
 
+// Mobile responsive rules for InterviewCoach.
+// Same approach as AICoach: responsive-critical properties (grids, padding,
+// image sizes) live in classes since inline styles beat plain CSS specificity.
+const INTERVIEW_COACH_RESPONSIVE_CSS = `
+.ic-q-section { padding: 60px 24px; }
+.ic-q-card { padding: 28px; }
+.ic-q-text { font-size: 17px; }
+.ic-results-section { padding: 48px 24px; }
+.ic-results-title { font-size: 24px; }
+.ic-scores-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.ic-intro-section { padding: 32px; }
+.ic-intro-header { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.ic-intro-title { font-size: 34px; }
+.ic-intro-hero-img { height: 160px; }
+.ic-steps-card { padding: 24px; }
+.ic-mock-banner { padding: 28px; display: grid; grid-template-columns: 220px 1fr auto; gap: 24px; align-items: center; }
+.ic-mock-title { font-size: 22px; }
+.ic-mock-btn { padding: 14px 26px; font-size: 14px; }
+.ic-category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.ic-category-img { width: 90px; height: 90px; }
+.ic-eval-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+.ic-improve-img { width: 62%; }
+.ic-improve-content { max-width: 60%; }
+
+@media (max-width: 768px) {
+  .ic-q-section { padding: 32px 16px; }
+  .ic-q-card { padding: 18px; }
+  .ic-q-text { font-size: 15.5px; }
+  .ic-results-section { padding: 32px 16px; }
+  .ic-results-title { font-size: 20px; }
+  .ic-scores-grid { grid-template-columns: repeat(2, 1fr); }
+  .ic-intro-section { padding: 18px; }
+  .ic-intro-title { font-size: 26px; }
+  .ic-intro-hero-img { height: 100px; }
+  .ic-steps-card { padding: 16px; gap: 16px !important; justify-content: flex-start !important; }
+  .ic-mock-banner { grid-template-columns: 1fr; text-align: center; padding: 20px; }
+  .ic-mock-banner img { margin: 0 auto; max-width: 160px; }
+  .ic-mock-banner > div:nth-child(2) > div { justify-content: center; }
+  .ic-category-grid { grid-template-columns: 1fr; }
+  .ic-eval-grid { grid-template-columns: 1fr; }
+  .ic-improve-content { max-width: 100%; }
+  .ic-improve-img { display: none; }
+}
+
+@media (max-width: 375px) {
+  .ic-q-section { padding: 20px 12px; }
+  .ic-q-card { padding: 14px; }
+  .ic-q-text { font-size: 14px; }
+  .ic-results-title { font-size: 17px; }
+  .ic-scores-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ic-intro-section { padding: 12px; }
+  .ic-intro-title { font-size: 21px; }
+  .ic-intro-hero-img { display: none; }
+  .ic-mock-title { font-size: 17px; }
+  .ic-mock-btn { padding: 11px 18px; font-size: 12.5px; }
+}
+`;
+
 function InterviewCoach() {
   const { isLoggedIn, requireAuth } = useAuth();
   const [stage, setStage] = useState("intro"); // intro | interviewing | analyzing | results
@@ -118,7 +176,8 @@ function InterviewCoach() {
   // ---- Interviewing / Analyzing screen ----
   if (stage === "interviewing" || stage === "analyzing") {
     return (
-      <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "60px 24px" }}>
+      <section className="ic-q-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+        <style>{INTERVIEW_COACH_RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: "640px", margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
             <span style={{ fontSize: "12.5px", fontWeight: 700, color: CATEGORY_META[category].color }}>
@@ -131,10 +190,10 @@ function InterviewCoach() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: "28px", marginBottom: "16px" }}>
+          <div className="card ic-q-card" style={{ marginBottom: "16px" }}>
             <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", marginBottom: "20px" }}>
               <span style={{ fontSize: "22px" }}>🎙️</span>
-              <p style={{ fontSize: "17px", fontWeight: 600, lineHeight: 1.5 }}>{questions[currentQ]}</p>
+              <p className="ic-q-text" style={{ fontWeight: 600, lineHeight: 1.5 }}>{questions[currentQ]}</p>
             </div>
 
             <textarea
@@ -167,14 +226,15 @@ function InterviewCoach() {
   // ---- Results screen ----
   if (stage === "results") {
     return (
-      <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "48px 24px" }}>
+      <section className="ic-results-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+        <style>{INTERVIEW_COACH_RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: "700px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <h2 style={{ fontSize: "24px", fontWeight: 900, marginBottom: "6px" }}>Interview Complete!</h2>
+            <h2 className="ic-results-title" style={{ fontWeight: 900, marginBottom: "6px" }}>Interview Complete!</h2>
             <p style={{ fontSize: "14px", color: "var(--ink-mute)" }}>Here's how you did, with AI-generated feedback.</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px" }}>
+          <div className="ic-scores-grid" style={{ marginBottom: "24px" }}>
             {SCORE_LABELS.map((s) => (
               <div key={s.key} className="card" style={{ textAlign: "center", padding: "18px 12px" }}>
                 <p style={{ fontSize: "18px", marginBottom: "6px" }}>{s.icon}</p>
@@ -201,19 +261,20 @@ function InterviewCoach() {
 
   // ---- Intro / landing screen ----
   return (
-    <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "32px" }}>
+    <section className="ic-intro-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{INTERVIEW_COACH_RESPONSIVE_CSS}</style>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", flexWrap: "wrap", gap: "20px" }}>
+        <div className="ic-intro-header" style={{ marginBottom: "24px" }}>
           <div>
-            <h2 style={{ fontSize: "34px", fontWeight: 900 }}>Interview <span style={{ color: "var(--violet)" }}>Coach</span></h2>
+            <h2 className="ic-intro-title" style={{ fontWeight: 900 }}>Interview <span style={{ color: "var(--violet)" }}>Coach</span></h2>
             <p style={{ fontSize: "14px", color: "var(--ink-mute)" }}>Practice with AI-simulated interviews for exams with a personality test stage.</p>
           </div>
-          <img src="/images/test.png" alt="AI Interviewer" style={{ height: "160px", objectFit: "contain" }} />
+          <img src="/images/test.png" alt="AI Interviewer" className="ic-intro-hero-img" style={{ objectFit: "contain" }} />
         </div>
 
         {/* 5-step process */}
-        <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "24px", marginBottom: "24px", flexWrap: "wrap", gap: "10px" }}>
+        <div className="card ic-steps-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", flexWrap: "wrap", gap: "10px" }}>
           {STEPS.map((s, i) => (
             <div key={s.num} style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: "140px" }}>
               <div style={{ textAlign: "center" }}>
@@ -230,10 +291,10 @@ function InterviewCoach() {
         </div>
 
         {/* Mock Interview Simulation banner */}
-        <div style={{ background: "linear-gradient(135deg, #1e1b4b, #4c1d95)", borderRadius: "18px", padding: "28px", marginBottom: "24px", display: "grid", gridTemplateColumns: "220px 1fr auto", gap: "24px", alignItems: "center" }}>
+        <div className="ic-mock-banner" style={{ background: "linear-gradient(135deg, #1e1b4b, #4c1d95)", borderRadius: "18px", marginBottom: "24px" }}>
           <img src="/images/test1.png" alt="Mock Interview" style={{ width: "100%", borderRadius: "12px" }} />
           <div>
-            <h3 style={{ color: "#fff", fontSize: "22px", fontWeight: 800, marginBottom: "6px" }}>Mock Interview Simulation</h3>
+            <h3 className="ic-mock-title" style={{ color: "#fff", fontWeight: 800, marginBottom: "6px" }}>Mock Interview Simulation</h3>
             <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "13.5px", marginBottom: "16px" }}>A full simulated interview experience just like the real one.</p>
             <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
               <span style={{ color: "#fff", fontSize: "12.5px" }}>⏱ <strong>15-20</strong> Minutes</span>
@@ -243,14 +304,15 @@ function InterviewCoach() {
           </div>
           <button
             onClick={() => startInterview("hr")}
-            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none", borderRadius: "12px", padding: "14px 26px", fontWeight: 700, fontSize: "14px", cursor: "pointer", whiteSpace: "nowrap" }}
+            className="ic-mock-btn"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)", color: "#fff", border: "none", borderRadius: "12px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
           >
             ▶ Start Mock Interview
           </button>
         </div>
 
         {/* 3 category cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "18px", marginBottom: "24px" }}>
+        <div className="ic-category-grid" style={{ marginBottom: "24px" }}>
           {Object.entries(CATEGORY_META).map(([key, meta]) => (
             <div key={key} className="card" style={{ display: "flex", gap: "14px", alignItems: "flex-start" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -266,13 +328,13 @@ function InterviewCoach() {
                   Practice This →
                 </button>
               </div>
-              <img src={meta.image} alt={meta.title} style={{ width: "90px", height: "90px", objectFit: "contain", flexShrink: 0 }} />
+              <img src={meta.image} alt={meta.title} className="ic-category-img" style={{ objectFit: "contain", flexShrink: 0 }} />
             </div>
           ))}
         </div>
 
         {/* Sample Evaluation Report + Improvement Areas */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "18px" }}>
+        <div className="ic-eval-grid">
           <div className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <h4 style={{ fontSize: "15px", fontWeight: 800 }}>📊 Sample Evaluation Report</h4>
@@ -296,7 +358,7 @@ function InterviewCoach() {
 
           <div className="card" style={{ position: "relative", overflow: "hidden", minHeight: "260px" }}>
             <h4 style={{ fontSize: "15px", fontWeight: 800, marginBottom: "16px", position: "relative", zIndex: 2 }}>📈 Improvement Areas</h4>
-            <div style={{ maxWidth: "60%", position: "relative", zIndex: 2 }}>
+            <div className="ic-improve-content" style={{ position: "relative", zIndex: 2 }}>
               <div style={{ background: "#fff7ed", borderRadius: "10px", padding: "12px", display: "flex", gap: "10px", alignItems: "flex-start", marginBottom: "10px" }}>
                 <span>✏️</span>
                 <p style={{ fontSize: "12.5px" }}>Elaborate more on current affairs answers</p>
@@ -309,7 +371,8 @@ function InterviewCoach() {
             <img
               src="/images/test5.png"
               alt="Improvement"
-              style={{ position: "absolute", right: "-10px", bottom: "-10px", width: "62%", objectFit: "contain", zIndex: 1 }}
+              className="ic-improve-img"
+              style={{ position: "absolute", right: "-10px", bottom: "-10px", objectFit: "contain", zIndex: 1 }}
             />
           </div>
         </div>

@@ -35,6 +35,38 @@ function daysLeft(endStr) {
   return diff >= 0 ? diff : null;
 }
 
+// Mobile responsive rules for AnswerKey.
+// Same approach as the other pages: responsive-critical properties (grids,
+// padding, font sizes) live in classes since inline styles beat plain CSS specificity.
+const ANSWER_KEY_RESPONSIVE_CSS = `
+.ak-section { padding: 32px; }
+.ak-header-icon { width: 52px; height: 52px; font-size: 24px; }
+.ak-title { font-size: 26px; }
+.ak-master-grid { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.ak-detail-card { padding: 28px; }
+.ak-detail-title { font-size: 22px; }
+.ak-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ak-footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+@media (max-width: 768px) {
+  .ak-section { padding: 16px; }
+  .ak-header-icon { width: 42px; height: 42px; font-size: 19px; }
+  .ak-title { font-size: 21px; }
+  .ak-master-grid { grid-template-columns: 1fr; }
+  .ak-detail-card { padding: 18px; }
+  .ak-detail-title { font-size: 18px; }
+  .ak-info-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 375px) {
+  .ak-section { padding: 12px; }
+  .ak-header-icon { width: 38px; height: 38px; font-size: 17px; }
+  .ak-title { font-size: 18px; }
+  .ak-detail-card { padding: 14px; }
+  .ak-detail-title { font-size: 16px; }
+}
+`;
+
 function AnswerKey() {
   const [answerKeys, setAnswerKeys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,12 +98,13 @@ function AnswerKey() {
   const remaining = selected ? daysLeft(selected.objection_window_end) : null;
 
   return (
-    <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "32px" }}>
+    <section className="ak-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{ANSWER_KEY_RESPONSIVE_CSS}</style>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px" }}>
-          <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>🔑</div>
+          <div className="ak-header-icon" style={{ borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center" }}>🔑</div>
           <div>
-            <h2 style={{ fontSize: "26px", fontWeight: 900 }}>Answer Keys</h2>
+            <h2 className="ak-title" style={{ fontWeight: 900 }}>Answer Keys</h2>
             <p style={{ fontSize: "13.5px", color: "var(--ink-mute)" }}>Check released answer keys and raise objections if needed.</p>
           </div>
         </div>
@@ -79,7 +112,7 @@ function AnswerKey() {
         {answerKeys.length === 0 ? (
           <p className="section-head center">No answer keys have been released yet.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "20px", alignItems: "start" }}>
+          <div className="ak-master-grid">
             {/* Left list */}
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {answerKeys.map((a) => {
@@ -118,18 +151,18 @@ function AnswerKey() {
 
             {/* Right detail */}
             {selected && (
-              <div style={{ background: "#fff", borderRadius: "18px", padding: "28px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
+              <div className="ak-detail-card" style={{ background: "#fff", borderRadius: "18px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
                 <div style={{ display: "flex", gap: "14px", alignItems: "center", marginBottom: "24px" }}>
-                  <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: getAuthorityMeta(selected.exam_authority).bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px" }}>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: getAuthorityMeta(selected.exam_authority).bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>
                     {getAuthorityMeta(selected.exam_authority).icon}
                   </div>
                   <div>
-                    <h2 style={{ fontSize: "22px", fontWeight: 900 }}>{selected.exam_name}</h2>
+                    <h2 className="ak-detail-title" style={{ fontWeight: 900 }}>{selected.exam_name}</h2>
                     <p style={{ fontSize: "13px", color: "var(--ink-mute)" }}>{selected.exam_authority}</p>
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+                <div className="ak-info-grid" style={{ marginBottom: "24px" }}>
                   <div style={{ background: "#f5f3ff", borderRadius: "14px", padding: "18px" }}>
                     <p style={{ fontSize: "11px", fontWeight: 700, color: "#7c3aed", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: "6px" }}>Release Date</p>
                     <p style={{ fontSize: "17px", fontWeight: 800 }}>{formatDate(selected.released_at)}</p>
@@ -157,7 +190,7 @@ function AnswerKey() {
                   ))}
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", paddingTop: "20px", borderTop: "1px solid var(--line)" }}>
+                <div className="ak-footer-row" style={{ paddingTop: "20px", borderTop: "1px solid var(--line)" }}>
                   {selected.official_link ? (
                     <a href={selected.official_link} target="_blank" rel="noopener noreferrer">
                       <button style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px 22px", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>

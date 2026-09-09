@@ -19,6 +19,40 @@ function formatDate(dateStr, fallback = "TBA") {
   return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
+// Mobile responsive rules for Results.
+// Same approach as the other pages: responsive-critical properties (grids,
+// padding, font sizes) live in classes since inline styles beat plain CSS specificity.
+const RESULTS_RESPONSIVE_CSS = `
+.res-section { padding: 32px; }
+.res-header-icon { width: 52px; height: 52px; font-size: 24px; }
+.res-title { font-size: 26px; }
+.res-master-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+.res-detail-card { padding: 28px; }
+.res-detail-title { font-size: 26px; }
+.res-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.res-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.res-footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+@media (max-width: 768px) {
+  .res-section { padding: 16px; }
+  .res-header-icon { width: 42px; height: 42px; font-size: 19px; }
+  .res-title { font-size: 21px; }
+  .res-master-grid { grid-template-columns: 1fr; }
+  .res-detail-card { padding: 18px; }
+  .res-detail-title { font-size: 20px; }
+  .res-info-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 375px) {
+  .res-section { padding: 12px; }
+  .res-header-icon { width: 38px; height: 38px; font-size: 17px; }
+  .res-title { font-size: 18px; }
+  .res-detail-card { padding: 14px; }
+  .res-detail-title { font-size: 17px; }
+  .res-detail-header { flex-wrap: wrap; }
+}
+`;
+
 function Results() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,13 +82,14 @@ function Results() {
   const selected = results.find((r) => r.id === selectedId);
 
   return (
-    <section style={{ background: "#f8fafc", minHeight: "100vh", padding: "32px" }}>
+    <section className="res-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <style>{RESULTS_RESPONSIVE_CSS}</style>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "28px" }}>
-          <div style={{ width: "52px", height: "52px", borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>🏆</div>
+          <div className="res-header-icon" style={{ borderRadius: "16px", background: "linear-gradient(135deg, #7c3aed, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center" }}>🏆</div>
           <div>
-            <h2 style={{ fontSize: "26px", fontWeight: 900 }}>Results</h2>
+            <h2 className="res-title" style={{ fontWeight: 900 }}>Results</h2>
             <p style={{ fontSize: "13.5px", color: "var(--ink-mute)" }}>Stay updated on your exam results.</p>
           </div>
         </div>
@@ -62,7 +97,7 @@ function Results() {
         {results.length === 0 ? (
           <p className="section-head center">No results have been released yet.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "20px", alignItems: "start" }}>
+          <div className="res-master-grid">
             {/* Left list */}
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {results.map((r) => {
@@ -97,16 +132,16 @@ function Results() {
 
             {/* Right detail */}
             {selected && (
-              <div style={{ background: "#fff", borderRadius: "18px", padding: "28px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-                  <h2 style={{ fontSize: "26px", fontWeight: 900 }}>{selected.exam_name}</h2>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#7c3aed", background: "#f3e8ff", padding: "5px 12px", borderRadius: "999px" }}>{selected.exam_authority}</span>
+              <div className="res-detail-card" style={{ background: "#fff", borderRadius: "18px", boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}>
+                <div className="res-detail-header" style={{ marginBottom: "12px" }}>
+                  <h2 className="res-detail-title" style={{ fontWeight: 900 }}>{selected.exam_name}</h2>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#7c3aed", background: "#f3e8ff", padding: "5px 12px", borderRadius: "999px", whiteSpace: "nowrap" }}>{selected.exam_authority}</span>
                 </div>
                 <p style={{ fontSize: "14px", color: "var(--ink-mute)", marginBottom: "24px" }}>
                   📅 Result Date: <strong style={{ color: "#7c3aed" }}>{formatDate(selected.released_at)}</strong>
                 </p>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+                <div className="res-info-grid" style={{ marginBottom: "24px" }}>
                   <div style={{ background: "#f5f3ff", borderRadius: "14px", padding: "20px" }}>
                     <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "#7c3aed", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", marginBottom: "12px" }}>🎯</div>
                     <h4 style={{ fontSize: "16px", fontWeight: 800, marginBottom: "6px" }}>Next Stage</h4>
@@ -119,7 +154,7 @@ function Results() {
                   </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", paddingTop: "20px", borderTop: "1px solid var(--line)" }}>
+                <div className="res-footer-row" style={{ paddingTop: "20px", borderTop: "1px solid var(--line)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span style={{ color: "#16a34a", fontSize: "18px" }}>✅</span>
                     <div>
