@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import ContactMessage  
+from users.views import ContactMessage, NewsletterSubscribe 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,7 +18,9 @@ urlpatterns = [
     path('api/current-affairs/', include('current_affairs.urls')),
     path('api/ai-coach/', include('ai_coach.urls')),
     path("api/subscriptions/", include("subscriptions.urls")),
-    path('api/', include('materials.urls')),  
+    path('api/', include('materials.urls')),
+    path('api/contact/', ContactMessage.as_view()),
+    path('api/newsletter/', NewsletterSubscribe.as_view()),
 
 ]
 

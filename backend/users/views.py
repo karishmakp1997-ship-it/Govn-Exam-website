@@ -105,3 +105,88 @@ class VerifySignupOTP(APIView):
 
         refresh = RefreshToken.for_user(user)
         return Response({"access": str(refresh.access_token), "refresh": str(refresh)})
+
+
+class ContactMessage(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        name = request.data.get("name")
+        email = request.data.get("email")
+        message = request.data.get("message")
+
+        if not name or not email or not message:
+            return Response({"detail": "name, email, and message are required."}, status=400)
+
+        try:
+            subject = f"New Contact Form Message from {name}"
+            html_body = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+                <h2 style="color: #1e1b4b;">New Contact Message</h2>
+                <p><strong>Name:</strong> {name}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Message:</strong></p>
+                <p style="color: #334155;">{message}</p>
+            </div>
+            """
+            response = http_requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": "Vetri AI Coach <onboarding@resend.dev>",
+                    "to": ["karishmakp1997@gmail.com"],
+                    "subject": subject,
+                    "html": html_body,
+                },
+                timeout=10,
+            )
+            if response.status_code >= 400:
+                raise Exception(f"Resend API error: {response.status_code} {response.text}")
+
+            return Response({"detail": "Message sent successfully."})
+
+        except Exception as e:
+            traceback.print_exc()
+            return Response({"detail": f"Could not send message. ({str(e)})"}, status=500)
+class NewsletterSubscribe(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+
+        if not email:
+            return Response({"detail": "Email is required."}, status=400)
+
+        try:
+            subject = "New Newsletter Subscription"
+            html_body = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+                <h2 style="color: #1e1b4b;">New Newsletter Subscriber</h2>
+                <p><strong>Email:</strong> {email}</p>
+            </div>
+            """
+            response = http_requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": "Vetri AI Coach <onboarding@resend.dev>",
+                    "to": ["karishmakp1997@gmail.com"],
+                    "subject": subject,
+                    "html": html_body,
+                },
+                timeout=10,
+            )
+            if response.status_code >= 400:
+                raise Exception(f"Resend API error: {response.status_code} {response.text}")
+
+            return Response({"detail": "Subscribed successfully."})
+
+        except Exception as e:
+            traceback.print_exc()
+            return Response({"detail": f"Could not subscribe. ({str(e)})"}, status=500)
