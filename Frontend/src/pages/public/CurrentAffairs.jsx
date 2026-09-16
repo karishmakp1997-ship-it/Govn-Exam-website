@@ -120,6 +120,29 @@ function CurrentAffairs() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAllTop, setShowAllTop] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState('idle');
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterStatus('sending');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/newsletter/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setNewsletterStatus('sent');
+      setNewsletterEmail('');
+    } catch {
+      setNewsletterStatus('error');
+    }
+  };
+
+
+
 
   useEffect(() => {
     const url = activeCategory
@@ -157,163 +180,183 @@ function CurrentAffairs() {
     <div className="ca-outer" style={{ background: "#e2e8f0", minHeight: "100vh", fontFamily: "Georgia, 'Times New Roman', serif" }}>
       <style>{CURRENT_AFFAIRS_RESPONSIVE_CSS}</style>
       <div className="vintage-paper">
-      {/* Masthead */}
-      <div className="ca-masthead" style={{ borderBottom: "2px solid #1a1a1a", display: "flex", justifyContent: "space-between", fontFamily: "Arial, sans-serif" }}>
-        <span>Stay Informed. Stay Ahead.</span>
-        <span style={{ fontWeight: 700 }}>{today}</span>
-        <span>Edition: Daily Digest ★</span>
-      </div>
+        {/* Masthead */}
+        <div className="ca-masthead" style={{ borderBottom: "2px solid #1a1a1a", display: "flex", justifyContent: "space-between", fontFamily: "Arial, sans-serif" }}>
+          <span>Stay Informed. Stay Ahead.</span>
+          <span style={{ fontWeight: 700 }}>{today}</span>
+          <span>Edition: Daily Digest ★</span>
+        </div>
 
-      <div style={{ textAlign: "center", padding: "24px 32px 16px", borderBottom: "1px solid #1a1a1a" }}>
-        <h1 className="ca-hero-title" style={{ fontWeight: 900, letterSpacing: "2px", marginBottom: "10px" }}>CURRENT AFFAIRS</h1>
-        <p className="ca-hero-sub" style={{ fontFamily: "Arial, sans-serif", color: "#555" }}>
-          Your Daily Update on National | International | Economy | Science | Environment | Defence | More
-        </p>
-      </div>
+        <div style={{ textAlign: "center", padding: "24px 32px 16px", borderBottom: "1px solid #1a1a1a" }}>
+          <h1 className="ca-hero-title" style={{ fontWeight: 900, letterSpacing: "2px", marginBottom: "10px" }}>CURRENT AFFAIRS</h1>
+          <p className="ca-hero-sub" style={{ fontFamily: "Arial, sans-serif", color: "#555" }}>
+            Your Daily Update on National | International | Economy | Science | Environment | Defence | More
+          </p>
+        </div>
 
-      {/* Category nav */}
-      <div className="ca-nav" style={{ display: "flex", justifyContent: "center", borderBottom: "2px solid #1a1a1a", flexWrap: "wrap", fontFamily: "Arial, sans-serif" }}>
-        <span
-          onClick={() => setActiveCategory(null)}
-          className="ca-nav-item"
-          style={{ fontWeight: 700, cursor: "pointer", color: !activeCategory ? "#b91c1c" : "#1a1a1a" }}
-        >
-          Home
-        </span>
-        {NAV_CATEGORIES.map((cat) => (
+        {/* Category nav */}
+        <div className="ca-nav" style={{ display: "flex", justifyContent: "center", borderBottom: "2px solid #1a1a1a", flexWrap: "wrap", fontFamily: "Arial, sans-serif" }}>
           <span
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => setActiveCategory(null)}
             className="ca-nav-item"
-            style={{ fontWeight: 600, cursor: "pointer", color: activeCategory === cat ? "#b91c1c" : "#1a1a1a" }}
+            style={{ fontWeight: 700, cursor: "pointer", color: !activeCategory ? "#b91c1c" : "#1a1a1a" }}
           >
-            {getMeta(cat).label}
+            Home
           </span>
-        ))}
-      </div>
+          {NAV_CATEGORIES.map((cat) => (
+            <span
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="ca-nav-item"
+              style={{ fontWeight: 600, cursor: "pointer", color: activeCategory === cat ? "#b91c1c" : "#1a1a1a" }}
+            >
+              {getMeta(cat).label}
+            </span>
+          ))}
+        </div>
 
-      <div className="ca-content" style={{ maxWidth: "1200px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
-        {/* Headline + Top Stories */}
-        <div className="ca-headline-grid">
-          <div>
-            <h2 className="ca-headline-title" style={{ fontFamily: "Georgia, serif", fontWeight: 800, lineHeight: 1.25, marginBottom: "16px" }}>
-              {headline.title}
-            </h2>
-            <div className="ca-headline-row">
-              <ArticleThumb category={headline.category} imageUrl={headline.image_url} size={220} className="ca-headline-thumb" />
-              <div>
-                <p style={{ fontSize: "14px", lineHeight: 1.7, color: "#333", marginBottom: "12px" }}>
-                  {headline.excerpt || headline.content?.slice(0, 220)}
-                </p>
-                <Link to={`/current-affairs/${headline.id}`} style={{ color: "#b91c1c", fontWeight: 700, fontSize: "13px", textDecoration: "none" }}>
-                  Read Full Story →
-                </Link>
+        <div className="ca-content" style={{ maxWidth: "1200px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+          {/* Headline + Top Stories */}
+          <div className="ca-headline-grid">
+            <div>
+              <h2 className="ca-headline-title" style={{ fontFamily: "Georgia, serif", fontWeight: 800, lineHeight: 1.25, marginBottom: "16px" }}>
+                {headline.title}
+              </h2>
+              <div className="ca-headline-row">
+                <ArticleThumb category={headline.category} imageUrl={headline.image_url} size={220} className="ca-headline-thumb" />
+                <div>
+                  <p style={{ fontSize: "14px", lineHeight: 1.7, color: "#333", marginBottom: "12px" }}>
+                    {headline.excerpt || headline.content?.slice(0, 220)}
+                  </p>
+                  <Link to={`/current-affairs/${headline.id}`} style={{ color: "#b91c1c", fontWeight: 700, fontSize: "13px", textDecoration: "none" }}>
+                    Read Full Story →
+                  </Link>
+                </div>
+              </div>
+
+              <div className="ca-editor-row" style={{ background: "#fef2f2", borderRadius: "10px", marginTop: "20px" }}>
+                <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#b91c1c", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>✒️</div>
+                <p style={{ fontSize: "13px", flex: 1 }}><strong>Editor's Take:</strong> {getMeta(headline.category).label} continues to shape today's biggest headlines.</p>
+                <button style={{ background: "#fff", border: "1px solid #b91c1c", color: "#b91c1c", borderRadius: "8px", padding: "8px 14px", fontSize: "12px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  Explore Analysis
+                </button>
               </div>
             </div>
 
-            <div className="ca-editor-row" style={{ background: "#fef2f2", borderRadius: "10px", marginTop: "20px" }}>
-              <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#b91c1c", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", flexShrink: 0 }}>✒️</div>
-              <p style={{ fontSize: "13px", flex: 1 }}><strong>Editor's Take:</strong> {getMeta(headline.category).label} continues to shape today's biggest headlines.</p>
-              <button style={{ background: "#fff", border: "1px solid #b91c1c", color: "#b91c1c", borderRadius: "8px", padding: "8px 14px", fontSize: "12px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                Explore Analysis
+            <div>
+              <h3 style={{ fontSize: "14px", fontWeight: 800, color: "#b91c1c", borderBottom: "2px solid #b91c1c", paddingBottom: "8px", marginBottom: "14px" }}>TOP STORIES</h3>
+              {topStories.map((a) => (
+                <Link to={`/current-affairs/${a.id}`} key={a.id} style={{ textDecoration: "none", color: "inherit" }}>
+                  <div style={{ display: "flex", gap: "12px", marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px dashed #ddd" }}>
+                    <ArticleThumb category={a.category} imageUrl={a.image_url} size={64} />
+                    <div>
+                      <p style={{ fontSize: "10.5px", fontWeight: 800, color: getMeta(a.category).color, marginBottom: "4px" }}>{getMeta(a.category).label.toUpperCase()}</p>
+                      <p style={{ fontSize: "13px", fontWeight: 700, fontFamily: "Georgia, serif", lineHeight: 1.3, marginBottom: "4px" }}>{a.title}</p>
+                      <p style={{ fontSize: "11px", color: "#888" }}>{timeAgo(a.published_at)}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              <button onClick={() => setShowAllTop((v) => !v)} style={{ width: "100%", background: "#fff", border: "1px solid #1a1a1a", borderRadius: "8px", padding: "10px", fontSize: "12.5px", fontWeight: 700, cursor: "pointer" }}>
+                {showAllTop ? "Show Less ↑" : "View All Top Stories →"}
               </button>
             </div>
           </div>
 
-          <div>
-            <h3 style={{ fontSize: "14px", fontWeight: 800, color: "#b91c1c", borderBottom: "2px solid #b91c1c", paddingBottom: "8px", marginBottom: "14px" }}>TOP STORIES</h3>
-            {topStories.map((a) => (
-              <Link to={`/current-affairs/${a.id}`} key={a.id} style={{ textDecoration: "none", color: "inherit" }}>
-                <div style={{ display: "flex", gap: "12px", marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px dashed #ddd" }}>
-                  <ArticleThumb category={a.category} imageUrl={a.image_url} size={64} />
-                  <div>
-                    <p style={{ fontSize: "10.5px", fontWeight: 800, color: getMeta(a.category).color, marginBottom: "4px" }}>{getMeta(a.category).label.toUpperCase()}</p>
-                    <p style={{ fontSize: "13px", fontWeight: 700, fontFamily: "Georgia, serif", lineHeight: 1.3, marginBottom: "4px" }}>{a.title}</p>
-                    <p style={{ fontSize: "11px", color: "#888" }}>{timeAgo(a.published_at)}</p>
+          <hr style={{ border: "none", borderTop: "2px solid #1a1a1a", marginBottom: "28px" }} />
+
+          {/* Around the world / Economy / Quick facts */}
+          <div className="ca-world-grid">
+            {[
+              { title: "AROUND THE WORLD", article: worldArticle, color: "#2563eb" },
+              { title: "ECONOMY", article: economyArticle, color: "#0891b2" },
+            ].map((section) =>
+              section.article ? (
+                <div key={section.title}>
+                  <h4 style={{ fontSize: "12.5px", fontWeight: 800, color: section.color, marginBottom: "10px" }}>{section.title}</h4>
+                  <ArticleThumb category={section.article.category} imageUrl={section.article.image_url} size={140} />
+                  <Link to={`/current-affairs/${section.article.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <p style={{ fontSize: "15px", fontWeight: 700, fontFamily: "Georgia, serif", margin: "10px 0 6px", lineHeight: 1.3 }}>{section.article.title}</p>
+                  </Link>
+                  <p style={{ fontSize: "12.5px", color: "#555", marginBottom: "6px" }}>{section.article.excerpt}</p>
+                  <p style={{ fontSize: "11px", color: "#888" }}>{timeAgo(section.article.published_at)}</p>
+                </div>
+              ) : <div key={section.title} />
+            )}
+
+            {/* Quick facts — static reference data, not from the Article model */}
+            <div>
+              <h4 style={{ fontSize: "12.5px", fontWeight: 800, color: "#b91c1c", marginBottom: "10px" }}>QUICK FACTS</h4>
+              <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: "10px", padding: "6px 14px" }}>
+                {[
+                  { icon: "👥", label: "Population (India)", value: "1.43 Billion" },
+                  { icon: "📊", label: "GDP Growth (Q4)", value: "7.8%" },
+                  { icon: "₹", label: "Repo Rate (RBI)", value: "6.50%" },
+                ].map((f) => (
+                  <div key={f.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+                    <span style={{ fontSize: "12px", color: "#555" }}>{f.icon} {f.label}</span>
+                    <span style={{ fontSize: "12.5px", fontWeight: 800 }}>{f.value}</span>
                   </div>
-                </div>
-              </Link>
-            ))}
-            <button onClick={() => setShowAllTop((v) => !v)} style={{ width: "100%", background: "#fff", border: "1px solid #1a1a1a", borderRadius: "8px", padding: "10px", fontSize: "12.5px", fontWeight: 700, cursor: "pointer" }}>
-              {showAllTop ? "Show Less ↑" : "View All Top Stories →"}
-            </button>
-          </div>
-        </div>
-
-        <hr style={{ border: "none", borderTop: "2px solid #1a1a1a", marginBottom: "28px" }} />
-
-        {/* Around the world / Economy / Quick facts */}
-        <div className="ca-world-grid">
-          {[
-            { title: "AROUND THE WORLD", article: worldArticle, color: "#2563eb" },
-            { title: "ECONOMY", article: economyArticle, color: "#0891b2" },
-          ].map((section) =>
-            section.article ? (
-              <div key={section.title}>
-                <h4 style={{ fontSize: "12.5px", fontWeight: 800, color: section.color, marginBottom: "10px" }}>{section.title}</h4>
-                <ArticleThumb category={section.article.category} imageUrl={section.article.image_url} size={140} />
-                <Link to={`/current-affairs/${section.article.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  <p style={{ fontSize: "15px", fontWeight: 700, fontFamily: "Georgia, serif", margin: "10px 0 6px", lineHeight: 1.3 }}>{section.article.title}</p>
-                </Link>
-                <p style={{ fontSize: "12.5px", color: "#555", marginBottom: "6px" }}>{section.article.excerpt}</p>
-                <p style={{ fontSize: "11px", color: "#888" }}>{timeAgo(section.article.published_at)}</p>
+                ))}
               </div>
-            ) : <div key={section.title} />
-          )}
-
-          {/* Quick facts — static reference data, not from the Article model */}
-          <div>
-            <h4 style={{ fontSize: "12.5px", fontWeight: 800, color: "#b91c1c", marginBottom: "10px" }}>QUICK FACTS</h4>
-            <div style={{ background: "#fff", border: "1px solid #eee", borderRadius: "10px", padding: "6px 14px" }}>
-              {[
-                { icon: "👥", label: "Population (India)", value: "1.43 Billion" },
-                { icon: "📊", label: "GDP Growth (Q4)", value: "7.8%" },
-                { icon: "₹", label: "Repo Rate (RBI)", value: "6.50%" },
-              ].map((f) => (
-                <div key={f.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
-                  <span style={{ fontSize: "12px", color: "#555" }}>{f.icon} {f.label}</span>
-                  <span style={{ fontSize: "12.5px", fontWeight: 800 }}>{f.value}</span>
-                </div>
-              ))}
             </div>
+          </div>
+
+          <hr style={{ border: "none", borderTop: "1px solid #ddd", marginBottom: "28px" }} />
+
+          {/* Bottom category grid */}
+          <div className="ca-bottom-grid">
+            {bottomArticles.map((a) => (
+              <div key={a.id}>
+                <p style={{ fontSize: "11px", fontWeight: 800, color: getMeta(a.category).color, marginBottom: "8px" }}>{getMeta(a.category).label.toUpperCase()}</p>
+                <ArticleThumb category={a.category} imageUrl={a.image_url} size={100} />
+                <Link to={`/current-affairs/${a.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <p style={{ fontSize: "13.5px", fontWeight: 700, fontFamily: "Georgia, serif", margin: "10px 0 6px", lineHeight: 1.3 }}>{a.title}</p>
+                </Link>
+                <p style={{ fontSize: "11.5px", color: "#666", marginBottom: "6px" }}>{a.excerpt}</p>
+                <p style={{ fontSize: "10.5px", color: "#999" }}>{timeAgo(a.published_at)}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid #ddd", marginBottom: "28px" }} />
-
-        {/* Bottom category grid */}
-        <div className="ca-bottom-grid">
-          {bottomArticles.map((a) => (
-            <div key={a.id}>
-              <p style={{ fontSize: "11px", fontWeight: 800, color: getMeta(a.category).color, marginBottom: "8px" }}>{getMeta(a.category).label.toUpperCase()}</p>
-              <ArticleThumb category={a.category} imageUrl={a.image_url} size={100} />
-              <Link to={`/current-affairs/${a.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                <p style={{ fontSize: "13.5px", fontWeight: 700, fontFamily: "Georgia, serif", margin: "10px 0 6px", lineHeight: 1.3 }}>{a.title}</p>
-              </Link>
-              <p style={{ fontSize: "11.5px", color: "#666", marginBottom: "6px" }}>{a.excerpt}</p>
-              <p style={{ fontSize: "10.5px", color: "#999" }}>{timeAgo(a.published_at)}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="ca-footer" style={{ borderTop: "2px solid #1a1a1a", marginTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
-        <p style={{ fontSize: "13px", fontStyle: "italic", color: "#555", maxWidth: "420px" }}>
-          "The more you read, the more things you will know. The more that you learn, the more places you'll go." — Dr. Seuss
-        </p>
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <span style={{ fontSize: "20px" }}>📰</span>
-          <div>
-            <p style={{ fontSize: "13px", fontWeight: 700 }}>Never Miss an Update</p>
-            <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
-              <input placeholder="Enter your email" style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "12px" }} />
-              <button style={{ background: "#b91c1c", color: "#fff", border: "none", borderRadius: "6px", padding: "8px 16px", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}>Subscribe</button>
+        {/* Footer */}
+        <div className="ca-footer" style={{ borderTop: "2px solid #1a1a1a", marginTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+          <p style={{ fontSize: "13px", fontStyle: "italic", color: "#555", maxWidth: "420px" }}>
+            "The more you read, the more things you will know. The more that you learn, the more places you'll go." — Dr. Seuss
+          </p>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <span style={{ fontSize: "20px" }}>📰</span>
+            <div>
+              <p style={{ fontSize: "13px", fontWeight: 700 }}>Never Miss an Update</p>
+              {newsletterStatus === 'sent' ? (
+                <p style={{ fontSize: "12px", color: "#16a34a", marginTop: "6px" }}>Subscribed! Thanks for joining.</p>
+              ) : (
+                <form onSubmit={handleNewsletterSubmit} style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Enter your email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "12px" }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={newsletterStatus === 'sending'}
+                    style={{ background: "#b91c1c", color: "#fff", border: "none", borderRadius: "6px", padding: "8px 16px", fontSize: "12px", fontWeight: 700, cursor: "pointer" }}
+                  >
+                    {newsletterStatus === 'sending' ? '...' : 'Subscribe'}
+                  </button>
+                </form>
+              )}
+              {newsletterStatus === 'error' && (
+                <p style={{ fontSize: "11px", color: "#dc2626", marginTop: "6px" }}>Couldn't subscribe. Please try again.</p>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

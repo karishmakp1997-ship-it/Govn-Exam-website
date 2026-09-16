@@ -53,12 +53,80 @@ const PRICING_RESPONSIVE_CSS = `
 }
 `;
 
+function RefundPolicyModal({ onClose }) {
+  return (
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(15, 23, 42, 0.5)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          background: '#fff',
+          borderRadius: '18px',
+          padding: '32px',
+          width: '520px',
+          maxWidth: '92vw',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.3)',
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute', top: '14px', right: '14px',
+            width: '30px', height: '30px', borderRadius: '50%',
+            border: 'none', background: '#f1f4f9', color: '#7c8398',
+            fontSize: '15px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          ✕
+        </button>
+
+        <h2 style={{ fontSize: '20px', marginBottom: '4px' }}>7-Day Money-Back Guarantee</h2>
+        <p style={{ fontSize: '13px', color: '#7c8398', marginBottom: '22px' }}>
+          Our full refund policy for Premium subscribers.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '13.5px', color: '#334155', lineHeight: 1.65 }}>
+          <div>
+            <p style={{ fontWeight: 700, marginBottom: '4px' }}>Eligibility</p>
+            <p>If you're not satisfied with Premium for any reason, you can request a full refund within 7 days of your purchase date.</p>
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, marginBottom: '4px' }}>How to request a refund</p>
+            <p>Contact us via the "Contact Us" link in the footer, or email us with your registered email and payment details. Our team will process your request within 5-7 business days.</p>
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, marginBottom: '4px' }}>Refund method</p>
+            <p>Refunds are credited back to your original payment method (UPI, card, or net banking) via Razorpay.</p>
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, marginBottom: '4px' }}>After 7 days</p>
+            <p>Refund requests made after the 7-day window cannot be processed, but your Premium access will continue until the end of your subscription period.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Pricing() {
   const { isLoggedIn, requireAuth } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [error, setError] = useState(null);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -134,100 +202,108 @@ function Pricing() {
   const isPremium = subscription?.is_premium_active;
 
   return (
-    <section className="pr-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
-      <style>{PRICING_RESPONSIVE_CSS}</style>
-      <div style={{ maxWidth: "820px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h2 className="pr-title" style={{ fontWeight: 900, color: "var(--blue)", marginBottom: "8px" }}>Simple, Transparent Pricing</h2>
-          <p style={{ fontSize: "14px", color: "var(--ink-mute)" }}>Start free. Upgrade when you're ready to go all in.</p>
-        </div>
-
-        {error && <p style={{ textAlign: "center", color: "#dc2626", marginBottom: "16px", fontSize: "13px" }}>{error}</p>}
-
-        <div className="pr-plans-grid">
-          {/* Free plan */}
-          <div className="card pr-plan-card">
-            <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "4px" }}>Free</h3>
-            <p className="meta" style={{ marginBottom: "16px" }}>Perfect to start exploring the platform.</p>
-            <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹0<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/forever</span></p>
-            {[
-              "Exam notifications",
-              "Basic eligibility check",
-              "Limited AI Coach access",
-              "Limited mock tests",
-              "Limited study materials browsing",
-            ].map((f) => (
-              <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                <span style={{ color: "#16a34a" }}>✓</span>
-                <span style={{ fontSize: "13.5px" }}>{f}</span>
-              </div>
-            ))}
-            <button className="btn btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: "16px" }}>
-              {isLoggedIn ? "Current Plan" : "Get Started"}
-            </button>
+    <>
+      <section className="pr-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+        <style>{PRICING_RESPONSIVE_CSS}</style>
+        <div style={{ maxWidth: "820px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <h2 className="pr-title" style={{ fontWeight: 900, color: "var(--blue)", marginBottom: "8px" }}>Simple, Transparent Pricing</h2>
+            <p style={{ fontSize: "14px", color: "var(--ink-mute)" }}>Start free. Upgrade when you're ready to go all in.</p>
           </div>
 
-          {/* Premium plan */}
-          <div className="card pr-plan-card" style={{ position: "relative", border: "2px solid var(--violet)" }}>
-            <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--violet)", color: "#fff", fontSize: "10px", fontWeight: 800, padding: "5px 12px", borderRadius: "999px" }}>MOST POPULAR</span>
-            <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--violet)", marginBottom: "4px" }}>Premium</h3>
-            <p className="meta" style={{ marginBottom: "16px" }}>Everything you need to crack the exam.</p>
-            <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹4,999<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>
-            {[
-              "Unlimited AI Coach",
-              "Full mock test library",
-              "Advanced performance analytics",
-              "AI Interview Coach",
-              "Priority notifications (WhatsApp + Email)",
-              "Unlimited downloads",
-              "Adaptive study plans",
-            ].map((f) => (
-              <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                <span style={{ color: "var(--violet)" }}>✓</span>
-                <span style={{ fontSize: "13.5px" }}>{f}</span>
-              </div>
-            ))}
-            <button
-              className="btn btn-primary"
-              style={{ width: "100%", justifyContent: "center", marginTop: "16px", background: "linear-gradient(135deg, var(--violet), #a855f7)" }}
-              onClick={handleGoPremium}
-              disabled={processing || isPremium}
-            >
-              {isPremium ? "✓ Premium Active" : processing ? "Processing..." : "Go Premium"}
-            </button>
-            {isPremium && subscription?.expires_at && (
-              <p style={{ fontSize: "11px", color: "var(--ink-mute)", textAlign: "center", marginTop: "8px" }}>
-                Valid until {new Date(subscription.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-              </p>
-            )}
-          </div>
-        </div>
+          {error && <p style={{ textAlign: "center", color: "#dc2626", marginBottom: "16px", fontSize: "13px" }}>{error}</p>}
 
-        {/* FAQ */}
-        <h3 style={{ textAlign: "center", fontSize: "18px", fontWeight: 800, marginBottom: "16px" }}>Frequently Asked Questions</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px" }}>
-          {FAQS.map((f, idx) => (
-            <div key={f.q} className="card" style={{ padding: "16px 20px", cursor: "pointer" }} onClick={() => setOpenFaq(openFaq === idx ? null : idx)}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "14px", fontWeight: 700 }}>{f.q}</span>
-                <span style={{ fontSize: "12px", transform: openFaq === idx ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
-              </div>
-              {openFaq === idx && <p style={{ fontSize: "13px", color: "var(--ink-mute)", marginTop: "10px", lineHeight: 1.6 }}>{f.a}</p>}
+          <div className="pr-plans-grid">
+            {/* Free plan */}
+            <div className="card pr-plan-card">
+              <h3 style={{ fontSize: "20px", fontWeight: 800, marginBottom: "4px" }}>Free</h3>
+              <p className="meta" style={{ marginBottom: "16px" }}>Perfect to start exploring the platform.</p>
+              <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹0<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/forever</span></p>
+              {[
+                "Exam notifications",
+                "Basic eligibility check",
+                "Limited AI Coach access",
+                "Limited mock tests",
+                "Limited study materials browsing",
+              ].map((f) => (
+                <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <span style={{ color: "#16a34a" }}>✓</span>
+                  <span style={{ fontSize: "13.5px" }}>{f}</span>
+                </div>
+              ))}
+              <button className="btn btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: "16px" }}>
+                {isLoggedIn ? "Current Plan" : "Get Started"}
+              </button>
             </div>
-          ))}
-        </div>
 
-        {/* Money-back guarantee */}
-        <div className="card pr-money-back" style={{ background: "#f0fdfa" }}>
-          <span style={{ fontSize: "22px" }}>🛡️</span>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: "13.5px", fontWeight: 700 }}>7-Day Money-Back Guarantee</p>
-            <p style={{ fontSize: "12px", color: "var(--ink-mute)" }}>If you're not satisfied with Premium, let us know within 7 days for a full refund.</p>
+            {/* Premium plan */}
+<div className="card pr-plan-card" style={{ position: "relative", border: "2px solid var(--violet)", overflow: "visible" }}>              <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--violet)", color: "#fff", fontSize: "10px", fontWeight: 800, padding: "5px 12px", borderRadius: "999px" }}>MOST POPULAR</span>
+              <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--violet)", marginBottom: "4px" }}>Premium</h3>
+              <p className="meta" style={{ marginBottom: "16px" }}>Everything you need to crack the exam.</p>
+              <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹4,999<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>
+              {[
+                "Unlimited AI Coach",
+                "Full mock test library",
+                "Advanced performance analytics",
+                "AI Interview Coach",
+                "Priority notifications (WhatsApp + Email)",
+                "Unlimited downloads",
+                "Adaptive study plans",
+              ].map((f) => (
+                <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <span style={{ color: "var(--violet)" }}>✓</span>
+                  <span style={{ fontSize: "13.5px" }}>{f}</span>
+                </div>
+              ))}
+              <button
+                className="btn btn-primary"
+                style={{ width: "100%", justifyContent: "center", marginTop: "16px", background: "linear-gradient(135deg, var(--violet), #a855f7)" }}
+                onClick={handleGoPremium}
+                disabled={processing || isPremium}
+              >
+                {isPremium ? "✓ Premium Active" : processing ? "Processing..." : "Go Premium"}
+              </button>
+              {isPremium && subscription?.expires_at && (
+                <p style={{ fontSize: "11px", color: "var(--ink-mute)", textAlign: "center", marginTop: "8px" }}>
+                  Valid until {new Date(subscription.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              )}
+            </div>
           </div>
-          <a href="/about" style={{ fontSize: "12.5px", color: "var(--blue)", fontWeight: 700, whiteSpace: "nowrap" }}>Read Full Policy</a>
+
+          {/* FAQ */}
+          <h3 style={{ textAlign: "center", fontSize: "18px", fontWeight: 800, marginBottom: "16px" }}>Frequently Asked Questions</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px" }}>
+            {FAQS.map((f, idx) => (
+              <div key={f.q} className="card" style={{ padding: "16px 20px", cursor: "pointer" }} onClick={() => setOpenFaq(openFaq === idx ? null : idx)}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: "14px", fontWeight: 700 }}>{f.q}</span>
+                  <span style={{ fontSize: "12px", transform: openFaq === idx ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+                </div>
+                {openFaq === idx && <p style={{ fontSize: "13px", color: "var(--ink-mute)", marginTop: "10px", lineHeight: 1.6 }}>{f.a}</p>}
+              </div>
+            ))}
+          </div>
+
+          {/* Money-back guarantee */}
+          <div className="card pr-money-back" style={{ background: "#f0fdfa" }}>
+            <span style={{ fontSize: "22px" }}>🛡️</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: "13.5px", fontWeight: 700 }}>7-Day Money-Back Guarantee</p>
+              <p style={{ fontSize: "12px", color: "var(--ink-mute)" }}>If you're not satisfied with Premium, let us know within 7 days for a full refund.</p>
+            </div>
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); setRefundModalOpen(true); }}
+              style={{ fontSize: "12.5px", color: "var(--blue)", fontWeight: 700, whiteSpace: "nowrap" }}
+            >
+              Read Full Policy
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      {refundModalOpen && <RefundPolicyModal onClose={() => setRefundModalOpen(false)} />}
+    </>
   );
 }
 

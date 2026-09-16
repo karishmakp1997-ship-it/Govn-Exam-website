@@ -8,11 +8,15 @@ function Hero() {
   return (
     <section className="hero">
       <style>{`
-        @media (max-width: 850px) {
-          .hero-banner-full {
-            min-height: 0 !important;
-            background-image: none !important;
-          }
+@media (max-width: 850px) {
+  .hero {
+    padding: 4px 0 0 !important;
+  }
+
+  .hero-banner-full {
+    min-height: 0 !important;
+    background-image: none !important;
+  }
 
           .hero-banner-full .reveal-left {
             max-width: 100% !important;
@@ -35,17 +39,7 @@ function Hero() {
             display: none !important;
           }
 
-          .hero-badges {
-            width: 100%;
-            justify-content: center;
-            padding: 14px;
-            gap: 12px;
-          }
-
-          .hb-item {
-            flex: 1 1 45%;
-            justify-content: center;
-          }
+         
 
           .hero-cta {
             width: 100%;
@@ -63,27 +57,6 @@ function Hero() {
           }
         }
       `}</style>
-
-      <div className="wrap">
-        <div className="hero-badges">
-          <div className="hb-item">
-            <div className="hb-icon" style={{ background: 'var(--green-bg)', color: 'var(--green)' }}>✓</div>
-            <div><b>Verified. Transparent. Trusted.</b><span>Information from Official Sources</span></div>
-          </div>
-          <div className="hb-item">
-            <div className="hb-icon" style={{ background: 'var(--blue-light)', color: 'var(--blue)' }}>◎</div>
-            <div><b>Personalized</b><span>Exam Guidance</span></div>
-          </div>
-          <div className="hb-item">
-            <div className="hb-icon" style={{ background: 'var(--green-bg)', color: 'var(--green)' }}>✔</div>
-            <div><b>Instant</b><span>Eligibility Check</span></div>
-          </div>
-          <div className="hb-item">
-            <div className="hb-icon" style={{ background: 'var(--violet-bg)', color: 'var(--violet)' }}>✦</div>
-            <div><b>AI-Powered</b><span>Study Plans</span></div>
-          </div>
-        </div>
-      </div>
 
       <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 20px' }}>
         <div

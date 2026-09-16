@@ -5,7 +5,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import MinimalLayout from './layouts/MinimalLayout';
 import { useAuth } from './context/AuthContext';
 import AuthGateModal from './components/AuthGateModal';
-
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/public/Home';
 import ExamDiscovery from './pages/public/ExamDiscovery';
 import ExamDetail from './pages/public/ExamDetail';
@@ -29,10 +29,13 @@ import AnswerKey from './pages/dashboard/AnswerKey';
 import Results from './pages/dashboard/Results';
 import InterviewCoach from './pages/dashboard/InterviewCoach';
 
+
+
 function App() {
   const { showAuthModal } = useAuth();
   return (
     <BrowserRouter>
+        <ScrollToTop />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />

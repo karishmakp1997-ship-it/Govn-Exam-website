@@ -130,7 +130,7 @@ function ExamDetail() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "Could not add this exam.");
+        throw new Error(data.detail || "✓ Already in My Exams");
       }
 
       setAddedToMyExams(true);

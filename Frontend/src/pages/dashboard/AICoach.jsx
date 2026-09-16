@@ -104,6 +104,28 @@ function RobotAvatar({ size = 44 }) {
   );
 }
 
+function formatMessage(content) {
+  if (!content) return null;
+  // Split into paragraphs on double line breaks (or single, whichever the AI sends)
+  const paragraphs = content.split(/\n+/).filter((p) => p.trim());
+
+  return paragraphs.map((para, i) => {
+    // Split on **bold** markers and alternate plain/bold segments
+    const parts = para.split(/(\*\*.*?\*\*)/g);
+    return (
+      <p key={i} style={{ margin: i === 0 ? 0 : "10px 0 0" }}>
+        {parts.map((part, j) =>
+          part.startsWith("**") && part.endsWith("**") ? (
+            <strong key={j}>{part.slice(2, -2)}</strong>
+          ) : (
+            part
+          )
+        )}
+      </p>
+    );
+  });
+}
+
 function AICoach() {
   const [activeTab, setActiveTab] = useState("chat"); // 'chat' | 'interview'
   const { isLoggedIn, requireAuth } = useAuth();
@@ -258,7 +280,7 @@ function AICoach() {
                         lineHeight: 1.5,
                       }}
                     >
-                      {m.content}
+                      {m.role === "assistant" ? formatMessage(m.content) : m.content}
                     </div>
                   </div>
                 ))}

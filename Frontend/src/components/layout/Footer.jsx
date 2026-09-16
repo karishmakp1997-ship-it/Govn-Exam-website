@@ -174,7 +174,7 @@ function Footer() {
 
     setNewsletterStatus('sending');
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000"}/api/newsletter/`, {
+      const res = await fetch(`${API_BASE_URL}/api/newsletter/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: newsletterEmail }),
@@ -244,7 +244,13 @@ function Footer() {
                       {link.label}
                     </a>
                   ) : (
-                    <Link to={link.to} key={link.label}>{link.label}</Link>
+                    <Link
+                      to={link.to}
+                      key={link.label}
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'instant' })}
+                    >
+                      {link.label}
+                    </Link>
                   )
                 )}
               </div>

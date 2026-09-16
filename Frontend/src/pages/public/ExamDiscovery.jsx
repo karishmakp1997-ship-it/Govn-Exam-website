@@ -417,8 +417,30 @@ function ExamDiscovery() {
           ))}
         </div>
 
-        {loading && <p className="section-head center">Loading exams...</p>}
-        {error && <p className="section-head center" style={{ color: "#dc2626" }}>{error}</p>}
+{loading && (
+  <div className="section-head center" style={{ padding: '60px 20px' }}>
+    <div
+      style={{
+        width: '44px',
+        height: '44px',
+        margin: '0 auto 20px',
+        border: '4px solid #e2e8f0',
+        borderTopColor: '#7c3aed',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+      }}
+    ></div>
+    <p style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>
+      Loading exams...
+    </p>
+    <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '14px' }}>
+      This may take a few seconds on first load. Please wait, or{' '}
+      <Link to="/login" style={{ color: '#7c3aed', fontWeight: 700, textDecoration: 'underline' }}>
+        login for faster access
+      </Link>.
+    </p>
+  </div>
+)}        {error && <p className="section-head center" style={{ color: "#dc2626" }}>{error}</p>}
         {!loading && !error && filteredExams.length === 0 && (
           <p className="section-head center">No exams match your filters.</p>
         )}
