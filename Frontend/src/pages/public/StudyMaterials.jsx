@@ -1528,16 +1528,16 @@ function StudyMaterials() {
                     style={
                       isActive
                         ? {
-                            background:
-                              `linear-gradient(
+                          background:
+                            `linear-gradient(
                                 135deg,
                                 ${categoryTheme.from},
                                 ${categoryTheme.to}
                               )`,
-                            boxShadow:
-                              `0 7px 18px -5px
+                          boxShadow:
+                            `0 7px 18px -5px
                                ${categoryTheme.from}66`,
-                          }
+                        }
                         : {}
                     }
                   >
@@ -1632,8 +1632,18 @@ function StudyMaterials() {
 
             <div className="study-empty">
               <h3 className="study-empty-title">
-                {error}
+                {isLoggedIn ? error : "Login to access study materials"}
               </h3>
+              {!isLoggedIn && (
+                <button
+                  type="button"
+                  onClick={() => requireAuth("login")}
+                  className="btn btn-primary"
+                  style={{ marginTop: "14px" }}
+                >
+                  Login
+                </button>
+              )}
             </div>
 
           ) : materials.length === 0 ? (
@@ -1903,7 +1913,7 @@ function StudyMaterials() {
                   type="button"
                   className={
                     selectedMaterial.locked &&
-                    !isLoggedIn
+                      !isLoggedIn
                       ? "study-action-btn locked"
                       : "study-action-btn"
                   }
@@ -1913,13 +1923,13 @@ function StudyMaterials() {
                       !isLoggedIn
                     )
                       ? {
-                          background:
-                            `linear-gradient(
+                        background:
+                          `linear-gradient(
                               135deg,
                               ${theme.from},
                               ${theme.to}
                             )`,
-                        }
+                      }
                       : {}
                   }
                   onClick={(event) => {

@@ -9,6 +9,7 @@ function SignUp() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login: setLoggedIn } = useAuth();
 
@@ -65,6 +66,23 @@ function SignUp() {
   const cardStyle = { background: '#fff', borderRadius: '16px', padding: '36px', width: '380px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' };
   const logoStyle = { width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #1d4ed8, #0f9d58)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', margin: '0 auto 10px' };
   const inputStyle = { padding: '10px 14px', border: '1px solid #e6e9f2', borderRadius: '10px', fontSize: '14px' };
+  const passwordWrapStyle = { position: 'relative', display: 'flex', alignItems: 'center', width: '100%', boxSizing: 'border-box' };
+  const eyeBtnStyle = {
+    position: 'absolute',
+    top: '50%',
+    right: '10px',
+    transform: 'translateY(-50%)',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '15px',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#7c8398',
+    zIndex: 2,
+  };
 
   if (step === 'otp') {
     return (
@@ -119,7 +137,26 @@ function SignUp() {
         <input name="username" placeholder="Full name" value={form.username} onChange={handleChange} style={inputStyle} />
         <input name="mobile_number" placeholder="Mobile number" value={form.mobile_number} onChange={handleChange} style={inputStyle} />
         <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} style={inputStyle} />
-        <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} style={inputStyle} />
+
+        <div style={passwordWrapStyle}>
+          <input
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            style={{ ...inputStyle, width: '100%', paddingRight: '40px', boxSizing: 'border-box' }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            style={eyeBtnStyle}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? '🙈' : '👁️'}
+          </button>
+        </div>
+
         {error && <p style={{ color: '#c23a3a', fontSize: '12.5px' }}>{error}</p>}
         <button type="submit" disabled={loading} className="btn btn-primary" style={{ justifyContent: 'center', padding: '11px' }}>
           {loading ? 'Sending OTP...' : 'Send OTP'}

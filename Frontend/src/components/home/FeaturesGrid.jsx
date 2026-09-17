@@ -14,13 +14,11 @@ const THEME = {
 
 const FEATURES = [
   { icon: '/images/icon (1).png', type: 'purple', title: 'Eligibility Checker', desc: 'Check your eligibility instantly with accurate results.', to: '/eligibility' },
-  { icon: '/images/icon (2).png', type: 'violet', title: 'Application Guidance', desc: 'Step-by-step guidance for every exam application.', popular: true, to: '/exams' },
   { icon: '/images/icon (3).png', type: 'pink', title: 'Deadline Tracker', desc: 'Never miss important exam dates and deadlines.', to: '/my-exams' },
   { icon: '/images/icon (4).png', type: 'blue', title: 'AI Tutor', desc: 'Get your doubts cleared with our AI-powered tutor.', to: '/ai-coach' },
   { icon: '/images/icon (5).png', type: 'green', title: 'Mock Tests', desc: 'Practice with real exam patterns and detailed analysis.', to: '/mock-tests' },
   { icon: '/images/icon (6).png', type: 'cyan', title: 'Performance Coach', desc: 'Identify weak areas and improve your performance.', to: '/performance' },
   { icon: '/images/icon (7).png', type: 'orange', title: 'Adaptive Study Plan', desc: 'A personalized plan that adapts to your progress.', to: '/study-materials' },
-  { icon: '/images/icon (8).png', type: 'amber', title: 'Notification Center', desc: 'Get instant updates through app, email and WhatsApp.', to: '/my-exams' },
 ];
 
 const PAIR_GAP_MS = 700;

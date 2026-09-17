@@ -19,6 +19,21 @@ function formatDate(dateStr, fallback = "TBA") {
   return new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
+const GRIEVANCE_FAQS = [
+  {
+    q: "How do I apply for revaluation or recheck?",
+    a: "Revaluation/recheck requests must be submitted through the official notification's process — usually within a few days of the result being declared. Check the \"View Official Result\" link above for the exact process and deadline for this exam.",
+  },
+  {
+    q: "My roll number isn't showing in the result. What do I do?",
+    a: "First confirm you're checking the correct exam and result date. If your roll number still doesn't appear, contact the conducting authority's official helpline — we only display verified summary information, not individual candidate records.",
+  },
+  {
+    q: "Who do I contact for result-related issues?",
+    a: "For issues specific to your result (marks, scorecard errors, name mismatches), reach out to the conducting authority directly via their official notification. For anything about this website, use the Contact Us link in our footer.",
+  },
+];
+
 // Mobile responsive rules for Results.
 // Same approach as the other pages: responsive-critical properties (grids,
 // padding, font sizes) live in classes since inline styles beat plain CSS specificity.
@@ -32,6 +47,7 @@ const RESULTS_RESPONSIVE_CSS = `
 .res-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .res-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .res-footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.res-check-row { display: flex; gap: 10px; }
 
 @media (max-width: 768px) {
   .res-section { padding: 16px; }
@@ -41,6 +57,7 @@ const RESULTS_RESPONSIVE_CSS = `
   .res-detail-card { padding: 18px; }
   .res-detail-title { font-size: 20px; }
   .res-info-grid { grid-template-columns: 1fr; }
+  .res-check-row { flex-direction: column; }
 }
 
 @media (max-width: 375px) {
@@ -58,6 +75,13 @@ function Results() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+
+  // "Check your result" widget state
+  const [rollNumber, setRollNumber] = useState("");
+  const [checkMessage, setCheckMessage] = useState("");
+
+  // Grievance/recheck accordion state
+  const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/results/`)
@@ -80,6 +104,19 @@ function Results() {
   if (error) return <div className="wrap" style={{ padding: "60px 32px" }}><p className="section-head center" style={{ color: "#dc2626" }}>{error}</p></div>;
 
   const selected = results.find((r) => r.id === selectedId);
+
+  const handleCheckResult = (e) => {
+    e.preventDefault();
+    if (!rollNumber.trim()) return;
+
+    if (selected?.official_link) {
+      window.open(selected.official_link, "_blank", "noopener,noreferrer");
+    } else {
+      setCheckMessage(
+        `Official result link isn't available for this exam yet. Please check the ${selected?.exam_authority || "conducting authority's"} website directly.`
+      );
+    }
+  };
 
   return (
     <section className="res-section" style={{ background: "#f8fafc", minHeight: "100vh" }}>
@@ -106,7 +143,11 @@ function Results() {
                 return (
                   <div
                     key={r.id}
-                    onClick={() => setSelectedId(r.id)}
+                    onClick={() => {
+                      setSelectedId(r.id);
+                      setCheckMessage("");
+                      setRollNumber("");
+                    }}
                     style={{
                       background: "#fff", borderRadius: "14px", padding: "16px",
                       border: isSelected ? "2px solid #7c3aed" : "1px solid var(--line)",
@@ -137,9 +178,25 @@ function Results() {
                   <h2 className="res-detail-title" style={{ fontWeight: 900 }}>{selected.exam_name}</h2>
                   <span style={{ fontSize: "12px", fontWeight: 700, color: "#7c3aed", background: "#f3e8ff", padding: "5px 12px", borderRadius: "999px", whiteSpace: "nowrap" }}>{selected.exam_authority}</span>
                 </div>
-                <p style={{ fontSize: "14px", color: "var(--ink-mute)", marginBottom: "24px" }}>
+                <p style={{ fontSize: "14px", color: "var(--ink-mute)", marginBottom: "20px" }}>
                   📅 Result Date: <strong style={{ color: "#7c3aed" }}>{formatDate(selected.released_at)}</strong>
                 </p>
+
+                {/* Check your result */}
+                <div style={{ background: "#f8fafc", border: "1px solid var(--line)", borderRadius: "14px", padding: "18px", marginBottom: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: 800, margin: 0 }}>🔍 Check Your Result</h4>
+                  {selected?.official_link ? (
+                    <a href={selected.official_link} target="_blank" rel="noopener noreferrer">
+                      <button className="btn btn-primary" style={{ whiteSpace: "nowrap" }}>
+                        View Official Result ↗
+                      </button>
+                    </a>
+                  ) : (
+                    <button disabled style={{ background: "#e5e7eb", color: "#94a3b8", border: "none", borderRadius: "10px", padding: "11px 20px", fontWeight: 700, fontSize: "14px" }}>
+                      Official Link Unavailable
+                    </button>
+                  )}
+                </div>
 
                 <div className="res-info-grid" style={{ marginBottom: "24px" }}>
                   <div style={{ background: "#f5f3ff", borderRadius: "14px", padding: "20px" }}>
@@ -154,25 +211,28 @@ function Results() {
                   </div>
                 </div>
 
-                <div className="res-footer-row" style={{ paddingTop: "20px", borderTop: "1px solid var(--line)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ color: "#16a34a", fontSize: "18px" }}>✅</span>
-                    <div>
-                      <p style={{ fontSize: "13px", fontWeight: 700 }}>Verified. Transparent. Trusted.</p>
-                      <p style={{ fontSize: "11.5px", color: "var(--ink-mute)" }}>Last verified: {formatDate(selected.released_at)}</p>
-                    </div>
+               
+
+                {/* Grievance / recheck info */}
+                <div style={{ borderTop: "1px solid var(--line)", paddingTop: "20px" }}>
+                  <h4 style={{ fontSize: "14px", fontWeight: 800, marginBottom: "12px" }}>❓ Grievance & Recheck Help</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {GRIEVANCE_FAQS.map((faq, idx) => (
+                      <div
+                        key={faq.q}
+                        style={{ border: "1px solid var(--line)", borderRadius: "10px", padding: "12px 14px", cursor: "pointer" }}
+                        onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "13px", fontWeight: 700 }}>{faq.q}</span>
+                          <span style={{ fontSize: "11px", transform: openFaq === idx ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
+                        </div>
+                        {openFaq === idx && (
+                          <p style={{ fontSize: "12.5px", color: "var(--ink-mute)", marginTop: "8px", lineHeight: 1.6 }}>{faq.a}</p>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  {selected.official_link ? (
-                    <a href={selected.official_link} target="_blank" rel="noopener noreferrer">
-                      <button style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#fff", border: "none", borderRadius: "10px", padding: "12px 22px", fontWeight: 700, fontSize: "14px", cursor: "pointer" }}>
-                        View Official Result ↗
-                      </button>
-                    </a>
-                  ) : (
-                    <button disabled style={{ background: "#e5e7eb", color: "#94a3b8", border: "none", borderRadius: "10px", padding: "12px 22px", fontWeight: 700, fontSize: "14px" }}>
-                      Official Link Unavailable
-                    </button>
-                  )}
                 </div>
               </div>
             )}

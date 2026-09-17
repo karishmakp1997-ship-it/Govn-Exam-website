@@ -129,8 +129,11 @@ function ExamDetail() {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "✓ Already in My Exams");
+        setAddedToMyExams(true);
+        setTimeout(() => {
+          navigate("/my-exams");
+        }, 700);
+        return;
       }
 
       setAddedToMyExams(true);
@@ -138,7 +141,7 @@ function ExamDetail() {
         navigate("/my-exams");
       }, 700);
     } catch (err) {
-      setAddError(err.message);
+      setAddError("Something went wrong. Please try again.");
     } finally {
       setAddingToMyExams(false);
     }

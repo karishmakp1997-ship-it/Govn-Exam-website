@@ -3,7 +3,44 @@ import { Link } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
-const QUALIFICATION_OPTIONS = ["10th Pass", "12th Pass", "Diploma", "B.Sc", "Any Graduate", "Postgraduate"];
+const QUALIFICATION_OPTIONS = ["10th Pass", "12th Pass", "Diploma", "Bachelor's Degree", "B.Sc", "Any Graduate", "Postgraduate"];
+
+// Categorizes a qualification string into one of the real-world tracks.
+// Diploma is treated as its own track (after 10th, parallel to 12th) —
+// NOT automatically equivalent to or "higher than" 12th Pass.
+function getQualCategory(text) {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  if (t.includes("post") || t.includes("master") || t.includes("m.sc") || t.includes("mba")) return "postgraduate";
+  if (t.includes("any graduate") || t.includes("bachelor") || t.includes("b.sc") || t.includes("graduate") || t.includes("degree")) return "graduate";
+  if (t.includes("diploma")) return "diploma";
+  if (t.includes("12th")) return "twelfth";
+  if (t.includes("10th")) return "tenth";
+  return null;
+}
+
+// Does a user in `userCategory` satisfy a requirement of `requiredCategory`?
+// Modeled on real exam rules: a higher degree on the SAME academic ladder
+// (10th -> 12th -> graduate -> postgraduate) satisfies a lower requirement,
+// but Diploma sits on its own track and only satisfies "10th Pass" or "Diploma"
+// requirements — not "12th Pass".
+function satisfies(requiredCategory, userCategory) {
+  if (!requiredCategory || !userCategory) return true; // no data to compare against — don't block
+  switch (requiredCategory) {
+    case "tenth":
+      return ["tenth", "twelfth", "diploma", "graduate", "postgraduate"].includes(userCategory);
+    case "twelfth":
+      return ["twelfth", "graduate", "postgraduate"].includes(userCategory);
+    case "diploma":
+      return ["diploma", "graduate", "postgraduate"].includes(userCategory);
+    case "graduate":
+      return ["graduate", "postgraduate"].includes(userCategory);
+    case "postgraduate":
+      return ["postgraduate"].includes(userCategory);
+    default:
+      return true;
+  }
+}
 
 function formatDate(dateStr) {
   if (!dateStr) return "TBA";
@@ -35,11 +72,18 @@ function EligibilityChecker() {
       !age ||
       ((!exam.age_limit_min || Number(age) >= exam.age_limit_min) &&
         (!exam.age_limit_max || Number(age) <= exam.age_limit_max));
-    const qualOk =
-      !qualification ||
-      !exam.qualification_required ||
-      exam.qualification_required.toLowerCase().includes(qualification.toLowerCase()) ||
-      exam.qualification_required.toLowerCase().includes("any graduate");
+
+    if (!qualification || !exam.qualification_required) {
+      return ageOk;
+    }
+
+    const userCategory = getQualCategory(qualification);
+
+    // Some exams list multiple accepted qualifications separated by "/" (e.g. "12th Pass / Any Graduate").
+    // The user qualifies if they satisfy ANY one of the listed options.
+    const requiredOptions = exam.qualification_required.split("/").map((s) => getQualCategory(s.trim()));
+    const qualOk = requiredOptions.some((reqCategory) => satisfies(reqCategory, userCategory));
+
     return ageOk && qualOk;
   };
 
@@ -50,6 +94,8 @@ function EligibilityChecker() {
     setOtherMatches(eligible.slice(1));
     setChecked(true);
   };
+
+  const allEligible = bestMatch ? [bestMatch, ...otherMatches] : [];
 
   return (
     <section className="match-section" style={{ padding: "60px 0" }}>
@@ -147,61 +193,61 @@ function EligibilityChecker() {
 
             {checked && !loading && bestMatch && (
               <>
-                <div className="card" style={{ marginBottom: "16px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
-                    <span style={{ width: "26px", height: "26px", borderRadius: "50%", background: "#22c55e", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>✓</span>
-                    <div>
-                      <p style={{ fontSize: "15px", fontWeight: 700 }}>
-                        <span style={{ color: "#16a34a" }}>Eligible</span> for {bestMatch.name}
-                      </p>
-                      <p className="meta" style={{ marginBottom: 0 }}>Based on your provided details</p>
+                {allEligible.map((exam) => (
+                  <div className="card" key={exam.id} style={{ marginBottom: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+                      <span style={{ width: "26px", height: "26px", borderRadius: "50%", background: "#22c55e", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", flexShrink: 0 }}>✓</span>
+                      <div>
+                        <p style={{ fontSize: "15px", fontWeight: 700 }}>
+                          <span style={{ color: "#16a34a" }}>Eligible</span> for {exam.name}
+                        </p>
+                        <p className="meta" style={{ marginBottom: 0 }}>Based on your provided details</p>
+                      </div>
                     </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "12px", alignItems: "center", padding: "10px 0", borderTop: "1px solid var(--line)" }}>
+                        <div>
+                          <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Required qualification</p>
+                          <p style={{ fontSize: "13px", fontWeight: 600 }}>{exam.qualification_required || "Any"}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Your qualification</p>
+                          <p style={{ fontSize: "13px", fontWeight: 600 }}>{qualification}</p>
+                        </div>
+                        <span style={{ background: "var(--green-bg)", color: "#16a34a", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" }}>
+                          Meets requirement
+                        </span>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "12px", alignItems: "center", padding: "10px 0", borderTop: "1px solid var(--line)" }}>
+                        <div>
+                          <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Required age</p>
+                          <p style={{ fontSize: "13px", fontWeight: 600 }}>{exam.age_limit_min}-{exam.age_limit_max}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Your age</p>
+                          <p style={{ fontSize: "13px", fontWeight: 600 }}>{age}</p>
+                        </div>
+                        <span style={{ background: "var(--green-bg)", color: "#16a34a", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" }}>
+                          Meets requirement
+                        </span>
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>
+                      📄 Checked against: {exam.conducting_authority} Official Notification, last verified {formatDate(exam.last_verified_at)}.
+                    </p>
                   </div>
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "12px", alignItems: "center", padding: "10px 0", borderTop: "1px solid var(--line)" }}>
-                      <div>
-                        <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Required qualification</p>
-                        <p style={{ fontSize: "13px", fontWeight: 600 }}>{bestMatch.qualification_required || "Any"}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Your qualification</p>
-                        <p style={{ fontSize: "13px", fontWeight: 600 }}>{qualification}</p>
-                      </div>
-                      <span style={{ background: "var(--green-bg)", color: "#16a34a", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" }}>
-                        Meets requirement
-                      </span>
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "12px", alignItems: "center", padding: "10px 0", borderTop: "1px solid var(--line)" }}>
-                      <div>
-                        <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Required age</p>
-                        <p style={{ fontSize: "13px", fontWeight: 600 }}>{bestMatch.age_limit_min}-{bestMatch.age_limit_max}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>Your age</p>
-                        <p style={{ fontSize: "13px", fontWeight: 600 }}>{age}</p>
-                      </div>
-                      <span style={{ background: "var(--green-bg)", color: "#16a34a", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "999px", whiteSpace: "nowrap" }}>
-                        Meets requirement
-                      </span>
-                    </div>
-                  </div>
-
-                  <p style={{ fontSize: "11px", color: "var(--ink-mute)" }}>
-                    📄 Checked against: {bestMatch.conducting_authority} Official Notification, last verified {formatDate(bestMatch.last_verified_at)}.
-                  </p>
-                </div>
+                ))}
 
                 <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                   <div>
                     <p style={{ fontSize: "14.5px", fontWeight: 700, marginBottom: "2px" }}>
-                      Explore exams matching your profile
+                      Explore more exams
                     </p>
                     <p className="meta" style={{ marginBottom: 0 }}>
-                      {otherMatches.length > 0
-                        ? `${otherMatches.length} more exam${otherMatches.length !== 1 ? "s" : ""} you're eligible for.`
-                        : "Discover more opportunities tailored to your qualifications."}
+                      Browse the full list of government exams.
                     </p>
                   </div>
                   <Link to="/exams">

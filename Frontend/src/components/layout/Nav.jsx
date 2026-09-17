@@ -2,6 +2,39 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// Builds a short, human-readable notification line for a tracked exam
+// based on how many days remain until its application deadline.
+function buildNotificationText(tracked) {
+  const exam = tracked.exam_detail;
+  if (!exam) return null;
+
+  if (exam.status === "result_released") {
+    return `${exam.name} — result declared`;
+  }
+
+  if (!exam.application_end_date) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadline = new Date(exam.application_end_date);
+  deadline.setHours(0, 0, 0, 0);
+  const daysLeft = Math.round((deadline - today) / (1000 * 60 * 60 * 24));
+
+  if (daysLeft < 0) return null; // deadline already passed
+  if (daysLeft === 0) return `${exam.name} — application closes today`;
+  if (daysLeft === 1) return `${exam.name} — closes in 1 day`;
+  if (daysLeft <= 14) return `${exam.name} — closes in ${daysLeft} days`;
+
+  return null; // deadline too far away to be worth surfacing
+}
+
 function Nav({ isAuthenticated }) {
   const { logout } = useAuth();
   const location = useLocation();
@@ -9,6 +42,7 @@ function Nav({ isAuthenticated }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -31,6 +65,24 @@ function Nav({ isAuthenticated }) {
     setOpenDropdown(null);
     setMobileMenuOpen(false);
   }, [location.pathname, location.search]);
+
+  // Pull the user's tracked exams and turn them into notification lines.
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setNotifications([]);
+      return;
+    }
+
+    fetch(`${API_BASE_URL}/api/my-exams/`, { headers: getAuthHeaders() })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        const items = (Array.isArray(data) ? data : [])
+          .map((tracked) => ({ id: tracked.id, text: buildNotificationText(tracked) }))
+          .filter((n) => n.text);
+        setNotifications(items);
+      })
+      .catch(() => setNotifications([]));
+  }, [isAuthenticated, location.pathname]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -247,14 +299,20 @@ function Nav({ isAuthenticated }) {
           <div className="notif-wrap">
             <button className="bell-btn" onClick={() => setNotifOpen(!notifOpen)} aria-label="Notifications">
               🔔
-              <span className="bell-dot"></span>
+              {notifications.length > 0 && <span className="bell-dot"></span>}
             </button>
             {notifOpen && (
               <div className="notif-dropdown">
                 <p className="notif-title">Notifications</p>
-                <div className="notif-item">SSC CGL 2026 notification released</div>
-                <div className="notif-item">TNPSC Group II closes in 12 days</div>
-                <div className="notif-item">RRB NTPC result declared</div>
+                {!isAuthenticated ? (
+                  <div className="notif-item">Log in to see updates on your tracked exams.</div>
+                ) : notifications.length === 0 ? (
+                  <div className="notif-item">No upcoming deadlines right now.</div>
+                ) : (
+                  notifications.map((n) => (
+                    <div className="notif-item" key={n.id}>{n.text}</div>
+                  ))
+                )}
               </div>
             )}
           </div>
