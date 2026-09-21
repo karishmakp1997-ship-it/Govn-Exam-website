@@ -93,7 +93,7 @@ function StudyMaterials() {
         setMaterials(list.map(mapMaterial));
       })
       .catch(() => {
-        if (!cancelled) setError("Couldn't load materials. Please try again.");
+        if (!cancelled) setError("login to get the Access");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -1632,7 +1632,7 @@ function StudyMaterials() {
 
             <div className="study-empty">
               <h3 className="study-empty-title">
-                {isLoggedIn ? error : "Login to access study materials"}
+                {isLoggedIn ? error : "login to get the Access"}
               </h3>
               {!isLoggedIn && (
                 <button
