@@ -3,7 +3,7 @@ from .models import StudyMaterial
 
 @admin.register(StudyMaterial)
 class StudyMaterialAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'material_type', 'subject', 'is_locked', 'is_featured', 'last_updated')
-    list_filter = ('category', 'material_type', 'is_locked', 'is_featured')
+    list_display = ('title', 'category', 'material_type', 'subject', 'access_level', 'is_featured', 'last_updated')
+    list_filter = ('category', 'material_type', 'access_level', 'is_featured')
     search_fields = ('title', 'subject')
     ordering = ('-last_updated',)
