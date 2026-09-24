@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getStudyMaterials } from "../../api/materials";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 const CATEGORIES = [
   "UPSC", "TNPSC Group 1", "TNPSC Group 2", "TNPSC Group 3", "TNPSC Group 4",
@@ -26,6 +34,7 @@ const TYPE_FILTERS = [
   { value: "video", label: "Video" },
   { value: "flashcards", label: "Flashcards" },
   { value: "current_affairs", label: "Current Affairs" },
+  { value: "previous_year", label: "Previous Year Papers" },
 ];
 
 const TYPE_META = {
@@ -34,6 +43,7 @@ const TYPE_META = {
   video: { color: "#2563eb", bg: "#eff6ff", label: "Video" },
   flashcards: { color: "#7c3aed", bg: "#f5f3ff", label: "Flashcards" },
   current_affairs: { color: "#d97706", bg: "#fffbeb", label: "Current Affairs" },
+  previous_year: { color: "#16a34a", bg: "#ecfdf5", label: "Previous Year" },
 };
 
 const CATEGORY_THEMES = {
@@ -61,7 +71,7 @@ function mapMaterial(m) {
     updated: m.last_updated
       ? new Date(m.last_updated).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })
       : "",
-    locked: m.is_locked,
+    accessLevel: m.access_level || "premium", // 'free' | 'premium'
     featured: m.is_featured,
     fileUrl: m.file,
   };
@@ -69,6 +79,7 @@ function mapMaterial(m) {
 
 function StudyMaterials() {
   const { isLoggedIn, requireAuth } = useAuth();
+  const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState("UPSC");
   const [activeType, setActiveType] = useState("all");
@@ -77,6 +88,20 @@ function StudyMaterials() {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [subscription, setSubscription] = useState(null);
+  const isPremium = !!subscription?.is_premium_active;
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setSubscription(null);
+      return;
+    }
+    fetch(`${API_BASE_URL}/api/subscriptions/status/`, { headers: getAuthHeaders() })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setSubscription(data))
+      .catch(() => setSubscription(null));
+  }, [isLoggedIn]);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,10 +129,19 @@ function StudyMaterials() {
 
   const theme = CATEGORY_THEMES[activeCategory] || CATEGORY_THEMES["UPSC"];
 
+  // Is this specific material currently blocked for the current user?
+  const isBlocked = (material) => material.accessLevel === "premium" && !isPremium;
+
   const handleDownload = (material) => {
-    if (material.locked && !isLoggedIn) {
-      requireAuth("signup");
-      return;
+    if (material.accessLevel === "premium") {
+      if (!isLoggedIn) {
+        requireAuth("signup");
+        return;
+      }
+      if (!isPremium) {
+        navigate("/pricing");
+        return;
+      }
     }
     if (material.fileUrl) {
       window.open(material.fileUrl, "_blank");
@@ -120,7 +154,10 @@ function StudyMaterials() {
   const closeMaterial = () => setSelectedMaterial(null);
 
   const getActionLabel = (material) => {
-    if (material.locked && !isLoggedIn) return "Login to Access";
+    if (material.accessLevel === "premium") {
+      if (!isLoggedIn) return "Login & Upgrade to Premium";
+      if (!isPremium) return "Upgrade to Premium";
+    }
     if (material.type === "video") return "Watch Video";
     if (material.type === "flashcards") return "View Cards";
     return "Download";
@@ -131,8 +168,16 @@ function StudyMaterials() {
     if (type === "video") return "Video Lecture";
     if (type === "flashcards") return "Flashcards";
     if (type === "current_affairs") return "Current Affairs";
+    if (type === "previous_year") return "Previous Year Question Paper";
     if (type === "notes") return "Notes";
     return "Study Material";
+  };
+
+  const getAccessLabel = (material) => {
+    if (material.accessLevel === "free") return "Free Access";
+    if (!isLoggedIn) return "Login & Premium Required";
+    if (!isPremium) return "Premium Required";
+    return "Included in Premium";
   };
 
   return (
@@ -643,6 +688,21 @@ function StudyMaterials() {
           line-height: 1.25;
 
           opacity: .85;
+        }
+
+        .study-book-lock {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: rgba(15,23,42,0.72);
+          color: #fbbf24;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
         }
 
 
@@ -1674,6 +1734,8 @@ function StudyMaterials() {
                 const typeMeta =
                   TYPE_META[material.type] || {};
 
+                const blocked = isBlocked(material);
+
                 return (
 
                   <div
@@ -1698,6 +1760,9 @@ function StudyMaterials() {
                       className="study-book-image"
                     />
 
+                    {blocked && (
+                      <span className="study-book-lock" title="Premium">🔒</span>
+                    )}
 
                     <div className="study-book-cover">
 
@@ -1890,14 +1955,12 @@ function StudyMaterials() {
                       className="study-detail-value"
                       style={{
                         color:
-                          selectedMaterial.locked
+                          isBlocked(selectedMaterial)
                             ? "#dc2626"
                             : "#16a34a",
                       }}
                     >
-                      {selectedMaterial.locked
-                        ? "Login Required"
-                        : "Free Access"}
+                      {getAccessLabel(selectedMaterial)}
                     </span>
 
                   </div>
@@ -1912,16 +1975,12 @@ function StudyMaterials() {
                 <button
                   type="button"
                   className={
-                    selectedMaterial.locked &&
-                      !isLoggedIn
+                    isBlocked(selectedMaterial)
                       ? "study-action-btn locked"
                       : "study-action-btn"
                   }
                   style={
-                    !(
-                      selectedMaterial.locked &&
-                      !isLoggedIn
-                    )
+                    !isBlocked(selectedMaterial)
                       ? {
                         background:
                           `linear-gradient(
