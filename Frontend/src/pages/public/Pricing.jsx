@@ -237,11 +237,10 @@ function Pricing() {
             </div>
 
             {/* Premium plan */}
-<div className="card pr-plan-card" style={{ position: "relative", border: "2px solid var(--violet)", overflow: "visible" }}>              <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--violet)", color: "#fff", fontSize: "10px", fontWeight: 800, padding: "5px 12px", borderRadius: "999px" }}>MOST POPULAR</span>
+            <div className="card pr-plan-card" style={{ position: "relative", border: "2px solid var(--violet)", overflow: "visible" }}>              <span style={{ position: "absolute", top: "-12px", right: "20px", background: "var(--violet)", color: "#fff", fontSize: "10px", fontWeight: 800, padding: "5px 12px", borderRadius: "999px" }}>MOST POPULAR</span>
               <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--violet)", marginBottom: "4px" }}>Premium</h3>
               <p className="meta" style={{ marginBottom: "16px" }}>Everything you need to crack the exam.</p>
-              <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹4,999<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>
-              {[
+              <p className="pr-plan-price" style={{ fontWeight: 900, marginBottom: "20px" }}>₹399<span style={{ fontSize: "13px", fontWeight: 500, color: "var(--ink-mute)" }}>/year</span></p>              {[
                 "Unlimited AI Coach",
                 "Full mock test library",
                 "Advanced performance analytics",
