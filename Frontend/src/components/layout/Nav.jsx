@@ -325,7 +325,7 @@ function Nav({ isAuthenticated }) {
               </button>
             </>
           ) : (
-            <Link to="/login">
+            <Link to="/login" state={{ from: location.pathname }}>
               <button className="login-btn">
                 <span>👤</span> Login / Sign Up
               </button>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 
@@ -9,6 +9,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login: setLoggedIn } = useAuth();
 
   const handleChange = (e) => {
@@ -28,7 +29,7 @@ function Login() {
     try {
       const data = await login(form);
       setLoggedIn(data.access);
-      navigate('/my-exams');
+      navigate(location.state?.from || '/');
     } catch (err) {
       setError('Invalid username or password.');
     } finally {
